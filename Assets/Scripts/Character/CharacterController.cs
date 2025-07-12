@@ -1,4 +1,7 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
+using Unity.VisualScripting;
 
 public class CharacterController : MonoBehaviour
 {
@@ -8,21 +11,25 @@ public class CharacterController : MonoBehaviour
     private Vector3 _mouseStart = Vector3.zero;
     private Vector3 _mouseEnd = Vector3.zero;
     private bool _isMouseSwiping = false;
-    private Vector3 _targetPosition;
-    private bool _isMoving = false;
-
+    private Coroutine _moveCoroutine;
+    private List<Vector3> _movePaths = new List<Vector3>(); // Lưu vị trí các tile đi qua trong 1 lần di chuyển
+    
+    [Header("Body Parts Settings")]
+    [SerializeField] private GameObject _bodyPartPrefab; // Prefab cho các phần thân
+    [SerializeField] private string _bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
+    private GameObject _bodyPartsContainer; // Container chứa các phần thân
+    
     private MapState _mapState;
 
     private void Start()
     {
-        _targetPosition = transform.position;
+        _bodyPartsContainer = new GameObject(_bodyContainerName);
         _mapState = MapManager.Instance.MapState; // Lấy MapState từ MapManager
     }
 
     private void Update()
     {
         HandleSwipe();
-        MoveSmooth();
     }
     
     #region Handle input
@@ -43,18 +50,22 @@ public class CharacterController : MonoBehaviour
             Vector3 swipeDirection = _mouseEnd - _mouseStart;
             Vector3 direction = ConvertDirection(swipeDirection);
 
-            if (direction != Vector3.zero && !_isMoving)
+            if (direction != Vector3.zero && _moveCoroutine == null)
             {
-                _isMoving = true;
-                FindFinalTargetPosition(direction);
+                FindMovePaths(direction);
+                
+                if (_movePaths.Count > 0)
+                {
+                    _moveCoroutine = StartCoroutine(Move());
+                }
             }
         }
     }
     #endregion
     
-    #region Find target and move to
+    #region Find move paths and move character
 
-    private void FindFinalTargetPosition(Vector3 direction)
+    private void FindMovePaths(Vector3 direction)
     {
         if (direction == Vector3.zero) return;
         int distanceMove = _distanceMove;
@@ -67,35 +78,53 @@ public class CharacterController : MonoBehaviour
         {
             distanceMove *= -1; // Chiều âm
         }
+        
+        _movePaths.Clear();
 
         if (direction == Vector3.right || direction == Vector3.left)
         {
-            _targetPosition = FindTileToMoveOnX(distanceMove);
+            FindMovePathsOnX(distanceMove);
         }
         else if (direction == Vector3.forward || direction == Vector3.back)
         {
-            _targetPosition = FindTileToMoveOnZ(distanceMove);
+            FindMovePathsOnZ(distanceMove);
         }
         
     }
-    
-    private void MoveSmooth()
+
+    private IEnumerator Move()
     {
-        if (_isMoving)
+        Vector3 current = transform.position;
+        foreach (var nextTile in _movePaths)
         {
-            transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _moveSpeed * Time.deltaTime);
-            if (Vector3.Distance(transform.position, _targetPosition) < 0.001f)
+            Vector3 start = current;
+            Vector3 end = nextTile;
+
+            // Move from start to end
+            while (Vector3.Distance(transform.position, end) > 0.01f)
             {
-                transform.position = _targetPosition;
-                _isMoving = false;
+                transform.position = Vector3.MoveTowards(transform.position, end, _moveSpeed * Time.deltaTime);
+                yield return null;
             }
+
+            transform.position = end;
+            
+            // TODO: Spawn body part một cách mượt mà hơn
+            
+            // Spawn body part tại tile vừa rời
+            SpawnBodyParts(start);
+
+            current = end;
         }
+        
+        _moveCoroutine = null;
+
     }
     #endregion
     
-    #region Tile Finding Methods
+    #region Tile finding methods
 
-    private Vector3 FindTileToMoveOnZ(int distanceMove)
+    private void FindMovePathsOnZ(int distanceMove)
     {
         Vector3 currentPos = transform.position;
 
@@ -110,6 +139,7 @@ public class CharacterController : MonoBehaviour
                 // Đánh dấu đã đi qua
                 _mapState.VisitTile(targetTile);
                 currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
+                _movePaths.Add(currentPos); // Lưu tile vừa rời khoi
             }
             else
             {
@@ -117,11 +147,9 @@ public class CharacterController : MonoBehaviour
             }
             
         }
-        
-        return currentPos;
     }
     
-    private Vector3 FindTileToMoveOnX(int distanceMove)
+    private void FindMovePathsOnX(int distanceMove)
     {
         Vector3 currentPos = transform.position;
 
@@ -134,8 +162,9 @@ public class CharacterController : MonoBehaviour
             if (_mapState.CanMoveTo(targetTile))
             {
                 // Đánh dấu đã đi qua
-                _mapState.VisitTile(targetTile);
+                _mapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
                 currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
+                _movePaths.Add(currentPos); // Lưu các tile đi qua trong 1 lần di chuyển
             }
             else
             {
@@ -143,11 +172,10 @@ public class CharacterController : MonoBehaviour
             }
             
         }
-        
-        return currentPos;
     }
     #endregion
     
+    // Chuyển đồi hướng vuốt chuột thành hướng di chuyển
     private Vector3 ConvertDirection(Vector3 direction)
     {
         if (direction.magnitude < 50f) return Vector3.zero; // Ngưỡng tối thiểu
@@ -160,5 +188,10 @@ public class CharacterController : MonoBehaviour
         {
             return direction.y > 0 ? Vector3.forward : Vector3.back;
         }
+    }
+    
+    private void SpawnBodyParts(Vector3 spawnPosition)
+    {
+        Instantiate(_bodyPartPrefab, spawnPosition, Quaternion.identity, _bodyPartsContainer.transform);
     }
 }
