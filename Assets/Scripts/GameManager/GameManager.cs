@@ -22,20 +22,17 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // Init SaveLoadService
-        //SaveLoadService.Initialize(this, serverUrl, userId);
+        SaveLoadService.Initialize(this, serverUrl, userId);
     }
 
     private void Start()
     {
-        //LoadGame();
+        LoadGame();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            SaveGame();
-        }
+        
     }
 
     public void LoadGame()
@@ -54,7 +51,7 @@ public class GameManager : MonoBehaviour
                 CurrentSaveData = CreateDefaultData();
                 SaveGame();
             }
-            //MapManager.Instance.MapInitialize(CurrentSaveData.map);
+            MapManager.Instance.MapInitialize(CurrentSaveData.map);
         });
     }
 

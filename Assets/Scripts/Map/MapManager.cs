@@ -5,8 +5,8 @@ using UnityEngine.Serialization;
 public class MapManager : MonoBehaviour
 {
     [Header("Map Settings")]
-    private int _mapWidth = 5;
-    private int _mapLength = 5;
+    private int _mapWidth;
+    private int _mapLength;
     [SerializeField] private GameObject _tilePrefab;
     [SerializeField] private Transform _tileMapContainer;
     private const int _distanceUnit = 2;
@@ -27,11 +27,19 @@ public class MapManager : MonoBehaviour
         // Gán instance và đánh dấu không bị hủy khi load scene khác
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        MapInitialize();
     }
 
-    public void MapInitialize()
+    public void MapInitialize(MapData mapData)
     {
+        if (mapData != null)
+        {
+            _mapWidth = mapData.width;
+            _mapLength = mapData.length;
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Map data is null, using default settings.");
+        }
         
         CreateMap();
         _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, Vector3.zero);

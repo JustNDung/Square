@@ -6,9 +6,9 @@ using Unity.VisualScripting;
 public class CharacterController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private int _distanceMove = 2; // Khoảng cách di chuyển mỗi lần
-    [SerializeField] private float _moveSpeed = 8f; // Tăng tốc độ di chuyển
-    [SerializeField] private float _smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
+    [SerializeField] private int distanceMove = 2; // Khoảng cách di chuyển mỗi lần
+    [SerializeField] private float moveSpeed = 8f; // Tăng tốc độ di chuyển
+    [SerializeField] private float smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
     private Vector3 _mouseStart = Vector3.zero;
     private Vector3 _mouseEnd = Vector3.zero;
     private bool _isMouseSwiping = false;
@@ -16,21 +16,28 @@ public class CharacterController : MonoBehaviour
     private List<Vector3> _movePaths = new List<Vector3>(); // Lưu vị trí các tile đi qua trong 1 lần di chuyển
     
     [Header("Body Parts Settings")]
-    [SerializeField] private GameObject _bodyPartPrefab; // Prefab cho các phần thân
-    [SerializeField] private string _bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
-    [SerializeField] [Range(0f, 1f)] private float _spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
+    [SerializeField] private GameObject bodyPartPrefab; // Prefab cho các phần thân
+    [SerializeField] private string bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
+    [SerializeField] [Range(0f, 1f)] private float spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
     private GameObject _bodyPartsContainer; // Container chứa các phần thân
     
     private MapState _mapState;
 
     private void Start()
     {
-        _bodyPartsContainer = new GameObject(_bodyContainerName);
+        _bodyPartsContainer = new GameObject(bodyContainerName);
         _mapState = MapManager.Instance.MapState; // Lấy MapState từ MapManager
     }
 
     private void Update()
-    {
+    { 
+        //TODO: Sửa lỗi _mapState là null bởi vì MapManager chưa được khởi tạo
+        if (_mapState == null)
+        {
+            _mapState = MapManager.Instance.MapState;
+            Debug.LogError("MapState is not initialized. Please ensure MapManager is set up correctly.");
+            return;
+        }
         HandleSwipe();
     }
     
@@ -70,7 +77,7 @@ public class CharacterController : MonoBehaviour
     private void FindMovePaths(Vector3 direction)
     {
         if (direction == Vector3.zero) return;
-        int distanceMove = _distanceMove;
+        int distanceMove = this.distanceMove;
 
         if (direction == Vector3.right || direction == Vector3.forward)
         {
@@ -105,16 +112,16 @@ public class CharacterController : MonoBehaviour
             float distanceToTravel = Vector3.Distance(start, end);
             float distanceTraveled = 0f;
             bool hasSpawnedBodyPart = false;
-            float spawnThreshold = _spawnThreshold; // Use the configurable threshold
+            float spawnThreshold = this.spawnThreshold; // Use the configurable threshold
 
             while (distanceTraveled < distanceToTravel)
             {
-                float step = _moveSpeed * Time.deltaTime;
+                float step = moveSpeed * Time.deltaTime;
                 distanceTraveled += step;
                 float moveProgress = distanceTraveled / distanceToTravel;
                 
                 Vector3 targetPosition = Vector3.Lerp(start, end, moveProgress);
-                transform.position = Vector3.Lerp(transform.position, targetPosition, _smoothFactor);
+                transform.position = Vector3.Lerp(transform.position, targetPosition, smoothFactor);
 
                 // Spawn body part when we've moved 75% of the distance
                 if (!hasSpawnedBodyPart && moveProgress >= spawnThreshold)
@@ -204,6 +211,6 @@ public class CharacterController : MonoBehaviour
     
     private void SpawnBodyParts(Vector3 spawnPosition)
     {
-        Instantiate(_bodyPartPrefab, spawnPosition, Quaternion.identity, _bodyPartsContainer.transform);
+        Instantiate(bodyPartPrefab, spawnPosition, Quaternion.identity, _bodyPartsContainer.transform);
     }
 }

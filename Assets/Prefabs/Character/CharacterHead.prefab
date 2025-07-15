@@ -45,9 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2d95aee7615b4b49b6c4db3877eabc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _distanceMove: 2
-  _moveSpeed: 5
-  _bodyPartPrefab: {fileID: 8965794805089352040, guid: f54610dadd9b7fa449d69cc264778cca, type: 3}
+  distanceMove: 2
+  moveSpeed: 8
+  smoothFactor: 0.8
+  bodyPartPrefab: {fileID: 8965794805089352040, guid: f54610dadd9b7fa449d69cc264778cca, type: 3}
+  bodyContainerName: CharacterBody
+  spawnThreshold: 0.4
 --- !u!1001 &8533429699167869216
 PrefabInstance:
   m_ObjectHideFlags: 0
