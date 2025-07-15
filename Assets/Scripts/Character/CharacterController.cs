@@ -7,7 +7,8 @@ public class CharacterController : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private int _distanceMove = 2; // Khoảng cách di chuyển mỗi lần
-    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _moveSpeed = 8f; // Tăng tốc độ di chuyển
+    [SerializeField] private float _smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
     private Vector3 _mouseStart = Vector3.zero;
     private Vector3 _mouseEnd = Vector3.zero;
     private bool _isMouseSwiping = false;
@@ -17,6 +18,7 @@ public class CharacterController : MonoBehaviour
     [Header("Body Parts Settings")]
     [SerializeField] private GameObject _bodyPartPrefab; // Prefab cho các phần thân
     [SerializeField] private string _bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
+    [SerializeField] [Range(0f, 1f)] private float _spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
     private GameObject _bodyPartsContainer; // Container chứa các phần thân
     
     private MapState _mapState;
@@ -100,25 +102,35 @@ public class CharacterController : MonoBehaviour
             Vector3 start = current;
             Vector3 end = nextTile;
 
-            // Move from start to end
-            while (Vector3.Distance(transform.position, end) > 0.01f)
+            float distanceToTravel = Vector3.Distance(start, end);
+            float distanceTraveled = 0f;
+            bool hasSpawnedBodyPart = false;
+            float spawnThreshold = _spawnThreshold; // Use the configurable threshold
+
+            while (distanceTraveled < distanceToTravel)
             {
-                transform.position = Vector3.MoveTowards(transform.position, end, _moveSpeed * Time.deltaTime);
+                float step = _moveSpeed * Time.deltaTime;
+                distanceTraveled += step;
+                float moveProgress = distanceTraveled / distanceToTravel;
+                
+                Vector3 targetPosition = Vector3.Lerp(start, end, moveProgress);
+                transform.position = Vector3.Lerp(transform.position, targetPosition, _smoothFactor);
+
+                // Spawn body part when we've moved 75% of the distance
+                if (!hasSpawnedBodyPart && moveProgress >= spawnThreshold)
+                {
+                    SpawnBodyParts(start);
+                    hasSpawnedBodyPart = true;
+                }
+
                 yield return null;
             }
 
             transform.position = end;
-            
-            // TODO: Spawn body part một cách mượt mà hơn
-            
-            // Spawn body part tại tile vừa rời
-            SpawnBodyParts(start);
-
             current = end;
         }
         
         _moveCoroutine = null;
-
     }
     #endregion
     
@@ -149,7 +161,7 @@ public class CharacterController : MonoBehaviour
         }
     }
     
-    private void FindMovePathsOnX(int distanceMove)
+    private void  FindMovePathsOnX(int distanceMove)
     {
         Vector3 currentPos = transform.position;
 
