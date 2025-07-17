@@ -20,24 +20,16 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private string bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
     [SerializeField] [Range(0f, 1f)] private float spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
     private GameObject _bodyPartsContainer; // Container chứa các phần thân
+
     
-    private MapState _mapState;
 
     private void Start()
     {
         _bodyPartsContainer = new GameObject(bodyContainerName);
-        _mapState = MapManager.Instance.MapState; // Lấy MapState từ MapManager
     }
 
     private void Update()
     { 
-        //TODO: Sửa lỗi _mapState là null bởi vì MapManager chưa được khởi tạo
-        if (_mapState == null)
-        {
-            _mapState = MapManager.Instance.MapState;
-            Debug.LogError("MapState is not initialized. Please ensure MapManager is set up correctly.");
-            return;
-        }
         HandleSwipe();
     }
     
@@ -148,15 +140,15 @@ public class CharacterController : MonoBehaviour
         Vector3 currentPos = transform.position;
 
         // Duyệt từ vị trí hiện tại đến hết map theo trục Z
-        for (float z = currentPos.z + distanceMove; z < _mapState.Length * _mapState.DistanceUnit && z >= 0; z += distanceMove)
+        for (float z = currentPos.z + distanceMove; z < MapManager.Instance.MapLength * MapManager.Instance.DistanceUnit && z >= 0; z += distanceMove)
         {
             Vector3 targetTile = new Vector3(currentPos.x, 0, z);
 
             // Nếu tile này chưa được đi qua
-            if (_mapState.CanMoveTo(targetTile))
+            if (MapManager.Instance.MapState.CanMoveTo(targetTile))
             {
                 // Đánh dấu đã đi qua
-                _mapState.VisitTile(targetTile);
+                MapManager.Instance.MapState.VisitTile(targetTile);
                 currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu tile vừa rời khoi
             }
@@ -171,17 +163,17 @@ public class CharacterController : MonoBehaviour
     private void  FindMovePathsOnX(int distanceMove)
     {
         Vector3 currentPos = transform.position;
-
-        // Duyệt từ vị trí hiện tại đến hết map theo trục Z
-        for (float x = currentPos.x + distanceMove; x < _mapState.Width * _mapState.DistanceUnit && x >= 0; x += distanceMove)
+        
+        // Duyệt từ vị trí hiện tại đến hết map theo trục X
+        for (float x = currentPos.x + distanceMove; x < MapManager.Instance.MapWidth * MapManager.Instance.DistanceUnit && x >= 0; x += distanceMove)
         {
             Vector3 targetTile = new Vector3(x, 0, currentPos.z);
 
             // Nếu tile này chưa được đi qua
-            if (_mapState.CanMoveTo(targetTile))
+            if (MapManager.Instance.MapState.CanMoveTo(targetTile))
             {
                 // Đánh dấu đã đi qua
-                _mapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
+                MapManager.Instance.MapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
                 currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu các tile đi qua trong 1 lần di chuyển
             }

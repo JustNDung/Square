@@ -2,29 +2,21 @@
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
+using UnityEngine.Serialization;
 
-public class ServerSaveLoadManager<T> : ISaveLoadManager<T>
+public class ServerSaveLoadManager<T> : ISaveLoadManager<T> where T : GameData
 {
     private string _serverUrl = "http://localhost:3000/api";
-    private string _playerId = "player123"; // Player ID mặc định, nên được cấu hình lại
+    private string _playerId = "player123";
 
-    public void SetServerUrl(string url)
-    {
-        _serverUrl = url;
-    }
+    public void SetServerUrl(string url) => _serverUrl = url;
+    public void SetPlayerId(string playerId) => _playerId = playerId;
 
-    public void SetPlayerId(string playerId)
-    {
-        _playerId = playerId;
-    }
-
-    // Interface bắt buộc — không truyền playerId, dùng _playerId nội bộ
     public void Save(T data, System.Action<bool> onComplete = null)
     {
         CoroutineRunner.Instance.StartCoroutine(SaveCoroutine(data, onComplete));
     }
 
-    // Interface bắt buộc — key chính là playerId
     public void Load(string key, System.Action<T> onLoaded)
     {
         CoroutineRunner.Instance.StartCoroutine(LoadCoroutine(key, onLoaded));
@@ -32,8 +24,14 @@ public class ServerSaveLoadManager<T> : ISaveLoadManager<T>
 
     private IEnumerator SaveCoroutine(T data, System.Action<bool> onComplete)
     {
-        // Gửi JSON dạng: { playerId, gameData }
-        SaveWrapper wrapper = new SaveWrapper { playerId = _playerId, gameData = data };
+        // Custom JSON object matching backend format
+        GameDataWrapper wrapper = new GameDataWrapper
+        {
+            userId = _playerId,
+            character = data.character,
+            map = data.map
+        };
+
         string json = JsonUtility.ToJson(wrapper);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -64,8 +62,10 @@ public class ServerSaveLoadManager<T> : ISaveLoadManager<T>
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string json = request.downloadHandler.text;
-                LoadWrapper wrapper = JsonUtility.FromJson<LoadWrapper>(json);
-                onLoaded?.Invoke(wrapper.gameData);
+
+                // Giải mã wrapper -> gameData
+                GameDataResponseWrapper response = JsonUtility.FromJson<GameDataResponseWrapper>(json);
+                onLoaded?.Invoke((T)response.gameData);
                 Debug.Log("✅ Load success");
             }
             else
@@ -77,15 +77,16 @@ public class ServerSaveLoadManager<T> : ISaveLoadManager<T>
     }
 
     [System.Serializable]
-    private class SaveWrapper
+    private class GameDataWrapper
     {
-        public string playerId;
-        public T gameData;
+        public string userId;
+        [FormerlySerializedAs("player")] public CharacterData character;
+        public MapData map;
     }
 
     [System.Serializable]
-    private class LoadWrapper
+    private class GameDataResponseWrapper
     {
-        public T gameData;
+        public GameData gameData;
     }
 }

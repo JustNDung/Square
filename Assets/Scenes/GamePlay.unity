@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterHead
       objectReference: {fileID: 0}
+    - target: {fileID: 1764024471322597292, guid: cd2e1d49e32bc324294f2840e9798227, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -612,8 +616,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f29892522ec4274abf75b9b792367e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tilePrefab: {fileID: 5801050105336781116, guid: b64aee391f7ce7c429c27dcb552727ef, type: 3}
-  _tileMapContainer: {fileID: 2005506422}
+  tilePrefab: {fileID: 5801050105336781116, guid: b64aee391f7ce7c429c27dcb552727ef, type: 3}
+  characterPrefab: {fileID: 1764024471322597292, guid: cd2e1d49e32bc324294f2840e9798227, type: 3}
 --- !u!1 &1998506503
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,8 +680,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84b25b752cbc9a2468dfc6fc22e55dd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverUrl: http://localhost:3000/api
-  userId: player123
 --- !u!4 &2002414309
 Transform:
   m_ObjectHideFlags: 0
