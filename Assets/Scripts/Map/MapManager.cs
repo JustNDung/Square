@@ -5,12 +5,16 @@ using UnityEngine.Serialization;
 public class MapManager : MonoBehaviour
 {
     [Header("Map Settings")]
-    [SerializeField] private int _mapWidth = 5;
-    [SerializeField] private int _mapLength = 5;
-    [SerializeField] private GameObject _tilePrefab;
-    [SerializeField] private Transform _tileMapContainer;
+    private int _mapWidth;
+    private int _mapLength;
+    [SerializeField] private GameObject tilePrefab;
+    private Transform _tileMapContainer;
     private const int _distanceUnit = 2;
     private List<Tile> _tiles = new List<Tile>();
+    
+    [Header("Character Settings")]
+    [SerializeField] private GameObject characterPrefab;
+    
     public static MapManager Instance { get; private set; }
 
     private MapState _mapState;
@@ -27,19 +31,39 @@ public class MapManager : MonoBehaviour
         // Gán instance và đánh dấu không bị hủy khi load scene khác
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    public void SetupMap(MapData mapData)
+    {
+        if (mapData != null)
+        {
+            _mapWidth = mapData.width;
+            _mapLength = mapData.length;
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Map data is null, using default settings.");
+        }
         
         CreateMap();
         _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, Vector3.zero);
     }
+
+    public void SetupCharacters(CharacterData characterData)
+    {
+        GameObject character = Instantiate(characterPrefab, Vector3.zero, Quaternion.identity);
+        character.transform.position = characterData.position;
+    }
     
     private void CreateMap()
     {
+        _tileMapContainer = new GameObject("TileMapContainer").transform;
         for (int x = 0; x < _mapWidth * _distanceUnit; x += _distanceUnit)
         {
             for (int z = 0; z < _mapLength * _distanceUnit; z += _distanceUnit)
             {
                 Vector3 position = new Vector3(x, 0, z);
-                GameObject tile = Instantiate(_tilePrefab, position, Quaternion.identity, _tileMapContainer);
+                GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity, _tileMapContainer);
                 tile.transform.rotation = Quaternion.Euler(90f, 0, 0); 
                 
                 if (tile.TryGetComponent<Tile>(out Tile tileComponent))
@@ -55,10 +79,10 @@ public class MapManager : MonoBehaviour
     public int MapWidth
     {
         get => _mapWidth;
-        set => _mapWidth = Mathf.Max(1, value); // đảm bảo >= 1
+        set => _mapWidth = Mathf.Max(1, value); // đảm bảo >= 1C
     }
 
-    public int MapHeight
+    public int MapLength
     {
         get => _mapLength;
         set => _mapLength = Mathf.Max(1, value);
