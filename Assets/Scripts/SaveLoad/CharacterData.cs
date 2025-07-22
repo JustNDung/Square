@@ -4,6 +4,6 @@ public class CharacterData
 {
     public int characterId;
     public int mapId;   
-    public Vector3 position; // Vị trí của người chơi
+    public Vector3 position; 
     public int level;
 }

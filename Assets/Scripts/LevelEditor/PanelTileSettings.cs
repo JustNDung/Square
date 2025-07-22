@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,7 +23,6 @@ public class PanelTileSettings : MonoBehaviour
         walkableToggle.onValueChanged.AddListener(OnWalkableToggleChanged);
         
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
-        MessageDispatcher.Subscribe(GameEvent.OnTileEditorClose, OnTileEditorClose);
     }
 
     private void OnWalkableToggleChanged(bool isWalkable)
@@ -70,10 +69,6 @@ public class PanelTileSettings : MonoBehaviour
         }
     }
     
-    private void OnTileEditorClose(object args)
-    {
-        gameObject.SetActive(false);
-    }
 
     private void OnDisable()
     {

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour
 {
@@ -33,38 +34,28 @@ public class MapManager : MonoBehaviour
         // Gán instance và đánh dấu không bị hủy khi load scene khác
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        GenerateMap(5, 5); // Tạo map mặc định khi khởi tạo
-    }
-
-    public void SetupMapWithData(MapData mapData)
-    {
-        if (mapData != null)
-        {
-            _mapWidth = Mathf.Max(1, mapData.width); // đảm bảo kích thước >= 1
-            _mapLength = Mathf.Max(1, mapData.length);
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ Map data is null, using default settings.");
-        }
-        
-        CreateMap();
-        _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, Vector3.zero);
+        GenerateDefaultMap();
     }
     
+    private void GenerateDefaultMap()
+    {
+        GenerateMap(5, 5);
+        //_mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, defaultCharacterPosition);
+    }
+    
+    // Only create map
     public void GenerateMap(int width, int length)
     {
         _mapWidth = Mathf.Max(1, width); // đảm bảo kích thước >= 1
         _mapLength = Mathf.Max(1, length);
         
         CreateMap();
-        GenerateCharacter();
-        _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, Vector3.zero);
     }
-
-    private void GenerateCharacter()
+    
+    // Only create character
+    public void GenerateCharacter(Vector3 characterPosition)
     {
-        GameObject character = Instantiate(characterPrefab, defaultCharacterPosition, Quaternion.identity);
+        GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
         character.transform.SetParent(transform);
     }
     
@@ -138,6 +129,7 @@ public class MapManager : MonoBehaviour
         get => _mapState;
         set => _mapState = value;
     }
+    
     
     #endregion
    

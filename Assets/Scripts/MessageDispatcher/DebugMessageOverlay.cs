@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,7 @@ public class DebugMessageOverlay : MonoBehaviour
 {
     public static DebugMessageOverlay Instance;
 
-    [SerializeField] private Text logText;
+    [SerializeField] private TextMeshProUGUI logText;
     [SerializeField] private int maxLogs = 20;
 
     private readonly Queue<string> _logs = new();

@@ -11,9 +11,7 @@ public class PanelLevelSettings : MonoBehaviour
     [SerializeField] private TMP_InputField mapWidthIpt;
     [SerializeField] private TMP_InputField mapLengthIpt;
     [SerializeField] private Button generateMapBtn;
-
-    [Header("Character Settings")]
-    [SerializeField] private Vector3 characterPosition;
+    
 
     private void Awake()
     {
@@ -36,6 +34,7 @@ public class PanelLevelSettings : MonoBehaviour
         if (int.TryParse(mapWidthIpt.text, out int width) && int.TryParse(mapLengthIpt.text, out int length))
         {
             MapManager.Instance.GenerateMap(width, length);
+            
         }
         else
         {
