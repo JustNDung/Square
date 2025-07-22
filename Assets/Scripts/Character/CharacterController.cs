@@ -26,6 +26,8 @@ public class CharacterController : MonoBehaviour
     private void Start()
     {
         _bodyPartsContainer = new GameObject(bodyContainerName);
+        _bodyPartsContainer.transform.SetParent(MapManager.Instance.transform);
+        
     }
 
     private void Update()

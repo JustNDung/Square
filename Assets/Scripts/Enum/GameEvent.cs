@@ -1,5 +1,4 @@
-﻿public enum GameEvent
+﻿public class GameEvent
 {
-    
-    // thêm tùy ý
+    public const string OnTileEditorRightClick = "OnTileEditorRightClick";
 }

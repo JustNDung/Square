@@ -8,7 +8,8 @@ public class MapManager : MonoBehaviour
     private int _mapWidth;
     private int _mapLength;
     [SerializeField] private GameObject tilePrefab;
-    private Transform _tileMapContainer;
+    [SerializeField] private Transform tileMapContainer;
+    [SerializeField] private Vector3 defaultCharacterPosition = new Vector3(0, 0.25f, 0);
     private const int _distanceUnit = 2;
     private List<Tile> _tiles = new List<Tile>();
     
@@ -31,14 +32,15 @@ public class MapManager : MonoBehaviour
         // Gán instance và đánh dấu không bị hủy khi load scene khác
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        GenerateMap(5, 5); // Tạo map mặc định khi khởi tạo
     }
 
-    public void SetupMap(MapData mapData)
+    public void SetupMapWithData(MapData mapData)
     {
         if (mapData != null)
         {
-            _mapWidth = mapData.width;
-            _mapLength = mapData.length;
+            _mapWidth = Mathf.Max(1, mapData.width); // đảm bảo kích thước >= 1
+            _mapLength = Mathf.Max(1, mapData.length);
         }
         else
         {
@@ -48,22 +50,34 @@ public class MapManager : MonoBehaviour
         CreateMap();
         _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, Vector3.zero);
     }
-
-    public void SetupCharacters(CharacterData characterData)
+    
+    public void GenerateMap(int width, int length)
     {
-        GameObject character = Instantiate(characterPrefab, Vector3.zero, Quaternion.identity);
-        character.transform.position = characterData.position;
+        _mapWidth = Mathf.Max(1, width); // đảm bảo kích thước >= 1
+        _mapLength = Mathf.Max(1, length);
+        
+        CreateMap();
+        GenerateCharacter();
+        _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, Vector3.zero);
+    }
+
+    private void GenerateCharacter()
+    {
+        GameObject character = Instantiate(characterPrefab, defaultCharacterPosition, Quaternion.identity);
+        character.transform.SetParent(transform);
     }
     
     private void CreateMap()
     {
-        _tileMapContainer = new GameObject("TileMapContainer").transform;
+        ClearMap();
+        
+        // Create tiles with mapWidth and mapLength
         for (int x = 0; x < _mapWidth * _distanceUnit; x += _distanceUnit)
         {
             for (int z = 0; z < _mapLength * _distanceUnit; z += _distanceUnit)
             {
                 Vector3 position = new Vector3(x, 0, z);
-                GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity, _tileMapContainer);
+                GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity, tileMapContainer);
                 tile.transform.rotation = Quaternion.Euler(90f, 0, 0); 
                 
                 if (tile.TryGetComponent<Tile>(out Tile tileComponent))
@@ -72,8 +86,25 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
+        
     }
-    
+
+    private void ClearMap()
+    {
+        for (int i = 0; i < tileMapContainer.childCount; i++)
+        {
+            Destroy(tileMapContainer.GetChild(i).gameObject); // Xóa các tile cũ nếu có
+        }
+
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            if (transform.GetChild(i).name != "TileMapContainer")
+            {
+                Destroy(transform.GetChild(i).gameObject); // Xóa các object khác nếu có
+            }
+        }
+    }
+
     #region Getters and Setters
     
     public int MapWidth
