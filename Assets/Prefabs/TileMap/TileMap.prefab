@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 7396139832359315116}
   - component: {fileID: -7683953327500945721}
   - component: {fileID: 1849979529116606153}
-  - component: {fileID: 2928524911796172419}
   - component: {fileID: 8939413802166987111}
   m_Layer: 0
   m_Name: TileMap
@@ -115,44 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a3272e00554730bdf435f83eec7249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1839735485 &2928524911796172419
-Tilemap:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5801050105336781116}
-  m_Enabled: 1
-  m_Tiles: {}
-  m_AnimatedTiles: {}
-  m_TileAssetArray: []
-  m_TileSpriteArray: []
-  m_TileMatrixArray: []
-  m_TileColorArray: []
-  m_TileObjectToInstantiateArray: []
-  m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: 0, y: 0, z: 0}
-  m_Size: {x: 0, y: 0, z: 1}
-  m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
-  m_TileOrientation: 0
-  m_TileOrientationMatrix:
-    e00: 1
-    e01: 0
-    e02: 0
-    e03: 0
-    e10: 0
-    e11: 1
-    e12: 0
-    e13: 0
-    e20: 0
-    e21: 0
-    e22: 1
-    e23: 0
-    e30: 0
-    e31: 0
-    e32: 0
-    e33: 1
+  obstaclePrefab: {fileID: 7827798504404313476, guid: ef1bab9cacfd4904bbd176813cdd3494, type: 3}
 --- !u!65 &8939413802166987111
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -12,6 +12,9 @@ public class MapState
 
     // Lưu các tile đã đi qua (để không đi lại)
     public HashSet<Vector3> VisitedTiles { get; private set; } = new HashSet<Vector3>();
+    
+    // Lưu các tile khng thể đi được
+    public HashSet<Vector3> UnwalkableTiles { get; private set; } = new HashSet<Vector3>();
 
     // Vị trí hiện tại của vật thể
     public Vector3 PlayerPosition { get; set; }
@@ -33,8 +36,9 @@ public class MapState
     // Kiểm tra ô có thể đi được không
     public bool CanMoveTo(Vector3 pos)
     {
-        return IsInBounds(pos) && !VisitedTiles.Contains(pos);
-    }
+        return IsInBounds(pos) && !VisitedTiles.Contains(pos) 
+               && !UnwalkableTiles.Contains(pos);
+    }   
 
     // Đánh dấu ô đã đi qua
     public void VisitTile(Vector3 pos)
@@ -48,5 +52,23 @@ public class MapState
     {
         return pos.x >= 0 && pos.x <= (Width - 1) * DistanceUnit 
                           && pos.z >= 0 && pos.z <= (Length - 1) * DistanceUnit;
+    }
+    
+    // ✅ Đánh dấu một ô là không thể đi qua
+    public void AddUnwalkableTile(Vector3 pos)
+    {
+        UnwalkableTiles.Add(pos);
+    }
+
+    // ✅ Bỏ đánh dấu một ô là không thể đi
+    public void RemoveUnwalkableTile(Vector3 pos)
+    {
+        UnwalkableTiles.Remove(pos);
+    }
+
+    // ✅ Kiểm tra ô có phải là unwalkable không
+    public bool IsUnwalkable(Vector3 pos)
+    {
+        return UnwalkableTiles.Contains(pos);
     }
 }

@@ -3,29 +3,47 @@ using UnityEngine;
 
 public class TileEditor : MonoBehaviour, IEditorInteractable
 {
-    private Tile tile;
+    private Tile _tile;
+    [SerializeField] private GameObject obstaclePrefab;
+    [SerializeField] private float obstacleY = 1f;
     
     private void Awake()
     {
-        tile = GetComponent<Tile>();
+        _tile = GetComponent<Tile>();
     }
     
     public void OnEditorRightClick()
     {
         MessageDispatcher.Send(GameEvent.OnTileEditorRightClick, this);
     }
-    
-    public void Apply(TileEditorData data)
+
+    public void OnEditorESCKey()
     {
-        tile.IsWalkable = data.isWalkable;
+        MessageDispatcher.Send(GameEvent.OnTileEditorClose);
+    }
+
+    public void Apply(TileEditorData tileEditorData)
+    {
+        _tile.IsWalkable = tileEditorData.isWalkable;
+        if (!tileEditorData.isWalkable)
+        {
+            GenerateObstacle();
+        }
     }
 
     public TileEditorData GetData()
     {
         return new TileEditorData
         {
-            isWalkable = tile.IsWalkable
+            isWalkable = _tile.IsWalkable
         };
+    }
+
+    private void GenerateObstacle()
+    {
+        Transform obstacleContainer = MapManager.Instance.transform.Find("ObstacleContainer");
+        Instantiate(obstaclePrefab, new Vector3(transform.position.x, obstacleY, transform.position.z), 
+            Quaternion.identity, obstacleContainer);
     }
 }
 

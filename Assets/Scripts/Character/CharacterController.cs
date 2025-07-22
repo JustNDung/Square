@@ -9,6 +9,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private int distanceMove = 2; // Khoảng cách di chuyển mỗi lần
     [SerializeField] private float moveSpeed = 8f; // Tăng tốc độ di chuyển
     [SerializeField] private float smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
+    [SerializeField] private float characterY = 0.25f;
     private Vector3 _mouseStart = Vector3.zero;
     private Vector3 _mouseEnd = Vector3.zero;
     private bool _isMouseSwiping = false;
@@ -20,14 +21,11 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private string bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
     [SerializeField] [Range(0f, 1f)] private float spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
     private GameObject _bodyPartsContainer; // Container chứa các phần thân
-
     
-
     private void Start()
     {
         _bodyPartsContainer = new GameObject(bodyContainerName);
         _bodyPartsContainer.transform.SetParent(MapManager.Instance.transform);
-        
     }
 
     private void Update()
@@ -151,7 +149,7 @@ public class CharacterController : MonoBehaviour
             {
                 // Đánh dấu đã đi qua
                 MapManager.Instance.MapState.VisitTile(targetTile);
-                currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
+                currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu tile vừa rời khoi
             }
             else
@@ -176,7 +174,7 @@ public class CharacterController : MonoBehaviour
             {
                 // Đánh dấu đã đi qua
                 MapManager.Instance.MapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
-                currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
+                currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu các tile đi qua trong 1 lần di chuyển
             }
             else

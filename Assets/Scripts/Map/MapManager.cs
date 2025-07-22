@@ -9,6 +9,7 @@ public class MapManager : MonoBehaviour
     private int _mapLength;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Transform tileMapContainer;
+    [SerializeField] private Transform obstacleContainer;
     [SerializeField] private Vector3 defaultCharacterPosition = new Vector3(0, 0.25f, 0);
     private const int _distanceUnit = 2;
     private List<Tile> _tiles = new List<Tile>();
@@ -95,10 +96,15 @@ public class MapManager : MonoBehaviour
         {
             Destroy(tileMapContainer.GetChild(i).gameObject); // Xóa các tile cũ nếu có
         }
+        
+        for (int i = 0; i < obstacleContainer.childCount; i++)
+        {
+            Destroy(obstacleContainer.GetChild(i).gameObject); // Xóa các obstacle cũ nếu có
+        }
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            if (transform.GetChild(i).name != "TileMapContainer")
+            if (transform.GetChild(i).name != "TileMapContainer" && transform.GetChild(i).name != "ObstacleContainer")
             {
                 Destroy(transform.GetChild(i).gameObject); // Xóa các object khác nếu có
             }

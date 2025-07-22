@@ -2,4 +2,5 @@
 public interface IEditorInteractable
 {
     void OnEditorRightClick();
+    void OnEditorESCKey();
 }

@@ -10,7 +10,6 @@ public class EditorInteractionHandler : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                Debug.Log(hit.collider);
                 var interactable = hit.collider.GetComponent<IEditorInteractable>();
                 if (interactable != null)
                 {
