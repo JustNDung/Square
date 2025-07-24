@@ -52,4 +52,37 @@ public class UIHelpers : MonoBehaviour
             popUpComponent.SetupText(text);
         }
     }
+    
+    /// <summary>
+    /// Chuyển đổi screen position (ví dụ: vị trí chuột) sang UI local position trong canvas, có thể thêm offset
+    /// </summary>
+    /// <param name="screenPosition">Vị trí trên màn hình (ví dụ: Input.mousePosition)</param>
+    /// <param name="offset">Độ lệch x/y nếu muốn hiển thị lệch đi (ví dụ: new Vector2(50, 30))</param>
+    /// <returns>UI anchoredPosition trong canvas</returns>
+    public Vector2 ConvertScreenToUIPosition(Vector2 screenPosition, Vector2 offset = default)
+    {
+        Vector2 localPoint = Vector2.zero;
+
+        if (overlayCanvas != null && overlayCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                overlayCanvas.transform as RectTransform,
+                screenPosition + offset,
+                null, // null cho Overlay mode
+                out localPoint
+            );
+        }
+        else if (overlayCanvas != null && overlayCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                overlayCanvas.transform as RectTransform,
+                screenPosition + offset,
+                overlayCanvas.worldCamera,
+                out localPoint
+            );
+        }
+
+        return localPoint;
+    }
+    
 }

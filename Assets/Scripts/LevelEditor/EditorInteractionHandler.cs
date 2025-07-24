@@ -52,7 +52,6 @@ public class EditorInteractionHandler : MonoBehaviour
             _currentInteractable.OnESCDown();
         }
         
-        
         ResetOutline();
     }
 

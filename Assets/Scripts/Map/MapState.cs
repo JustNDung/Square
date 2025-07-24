@@ -36,27 +36,33 @@ public class MapState
         DistanceUnit = distanceUnit;
         Tiles = tiles;
         AddCharacter(characterController);
-        
-        Vector3 tileVisited = new Vector3(characterController.transform.position.x, 0, characterController.transform.position.z); // Tọa độ ô đã đi qua pos y = 0
+
+        Vector3 tileVisited = ToTilePosition(characterController.transform.position);
         VisitTile(tileVisited); // Đánh dấu ô đã đi qua khi khởi tạo
     }
 
     // Kiểm tra ô có thể đi được không
     public bool CanMoveTo(Vector3 pos)
     {
-        return IsInBounds(pos) && !VisitedTiles.Contains(pos) 
-               && !UnwalkableTiles.Contains(pos);
+        return IsInBounds(pos) && !VisitedTiles.Contains(pos) && !UnwalkableTiles.Contains(pos);
     }   
 
     // Đánh dấu ô đã đi qua
     public void VisitTile(Vector3 pos)
     {
         VisitedTiles.Add(pos);
+        UnwalkableTiles.Add(pos);
     }
-    
+        
     public void UnvisitTile(Vector3 pos)
     {
         VisitedTiles.Remove(pos);
+        UnwalkableTiles.Remove(pos);
+    }
+    
+    public bool IsVisited(Vector3 pos)
+    {
+        return VisitedTiles.Contains(pos);
     }
 
     // Kiểm tra tọa độ trong map
@@ -87,12 +93,26 @@ public class MapState
     // Kiểm tra ô có phải là unwalkable không
     public bool IsUnwalkable(Vector3 pos)
     {
-        return UnwalkableTiles.Contains(pos);
+        Vector3 tilePos = ToTilePosition(pos); // Chuyển đổi sang tọa độ ô (y = 0)
+
+        if (UnwalkableTiles.Contains(tilePos))
+        {
+            UIHelpers.Instance.ShowPopUpUI($"Ô {tilePos} có vật cản!");
+        }
+
+        return UnwalkableTiles.Contains(tilePos);
     }
     
     public void AddCharacter(CharacterController characterController)
     {
         Vector3 pos = characterController.transform.position;
+        Vector3 tilePos = ToTilePosition(pos); // Chuyển đổi sang tọa độ ô (y = 0)
+
+        if (IsUnwalkable(tilePos))
+        {
+            return;
+        }
+        
         if (CharacterAtPosition.ContainsKey(pos))
         {
             UIHelpers.Instance.ShowPopUpUI($"Vị trí {pos} đã có nhân vật khác!");
@@ -108,11 +128,20 @@ public class MapState
         CharacterAtPosition[pos] = characterController;
         PositionOfCharacter[characterController] = pos; 
         
-        VisitTile(ToTilePosition(pos)); // Đánh dấu ô đã đi qua
+        VisitTile(tilePos); // Đánh dấu ô đã đi qua
     }
     
     public void ModifyCharacterPosition(CharacterController characterController, Vector3 newPos)
     {
+        Vector3 tilePos = ToTilePosition(newPos); // Chuyển đổi sang tọa độ ô (y = 0)
+        
+        // Kiểm tra vị tri mới có vật cản không
+        if (IsUnwalkable(tilePos))
+        {
+            UIHelpers.Instance.ShowPopUpUI($"Ô {tilePos} có vật cản!");
+            return;
+        }
+        
         // Kiểm tra nhân vật đã có trong map chưa
         if (!PositionOfCharacter.TryGetValue(characterController, out var oldPos))
         {
@@ -135,7 +164,7 @@ public class MapState
         PositionOfCharacter[characterController] = newPos;  // Cập nhật map vị trí nhân vật
 
         // Đánh dấu đã đi qua vị trí mới
-        VisitTile(ToTilePosition(newPos)); // Đánh dấu ô mới đã đi qua
+        VisitTile(tilePos); // Đánh dấu ô mới đã đi qua
         characterController.transform.position = newPos; // Cập nhật vị trí của nhân vật
     }
     
@@ -155,6 +184,16 @@ public class MapState
             UIHelpers.Instance.ShowPopUpUI($"Vị trí {pos} đã có nhân vật khác!");
         }
         return CharacterAtPosition.ContainsKey(pos);
+    }
+    
+    public bool CanGenerateCharacterAt(Vector3 pos)
+    {
+        if (!IsInBounds(pos) || HasCharacterAt(pos) || IsUnwalkable(pos))
+        {
+            return false;
+        }
+
+        return true;
     }
     
     private Vector3 ToTilePosition(Vector3 pos)

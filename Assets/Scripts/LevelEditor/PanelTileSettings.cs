@@ -9,16 +9,9 @@ public class PanelTileSettings : MonoBehaviour
 
     [Header("UI Elements")]
     [SerializeField] private Toggle walkableToggle;
-    // private RectTransform panelRectTransform;
-    // private Canvas canvas;
-
-
     private void Awake()
     {
         gameObject.SetActive(false);
-        // panelRectTransform = GetComponent<RectTransform>();
-        // canvas = GetComponentInParent<Canvas>();
-        
         
         walkableToggle.onValueChanged.AddListener(OnWalkableToggleChanged);
         
@@ -57,16 +50,6 @@ public class PanelTileSettings : MonoBehaviour
             _currentTileData = _targetTileEditor.GetData();
 
             walkableToggle.isOn = _currentTileData.isWalkable;
-
-            // // Chuyển đổi vị trí chuột sang UI position
-            // Vector2 screenPoint = Input.mousePosition;
-            // RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            //     canvas.transform as RectTransform,
-            //     screenPoint,
-            //     canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
-            //     out Vector2 localPoint
-            // );
-            // panelRectTransform.anchoredPosition = localPoint;
         }
     }
     

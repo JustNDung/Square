@@ -59,7 +59,7 @@ public class MapManager : MonoBehaviour
     // Only create character
     public void GenerateCharacter(Vector3 characterPosition)
     {
-        if (_mapState != null && !_mapState.HasCharacterAt(characterPosition) || _mapState == null)
+        if (_mapState != null && _mapState.CanGenerateCharacterAt(characterPosition) || _mapState == null)
         {
             GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
             character.transform.SetParent(characterContainer);
