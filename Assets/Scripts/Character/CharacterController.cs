@@ -6,7 +6,6 @@ using Unity.VisualScripting;
 public class CharacterController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private int distanceMove = 2; // Khoảng cách di chuyển mỗi lần
     [SerializeField] private float moveSpeed = 8f; // Tăng tốc độ di chuyển
     [SerializeField] private float smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
     [SerializeField] private float characterY = 0.25f;
@@ -18,16 +17,8 @@ public class CharacterController : MonoBehaviour
     
     [Header("Body Parts Settings")]
     [SerializeField] private GameObject bodyPartPrefab; // Prefab cho các phần thân
-    [SerializeField] private string bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
     [SerializeField] [Range(0f, 1f)] private float spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
-    private GameObject _bodyPartsContainer; // Container chứa các phần thân
     
-    private void Start()
-    {
-        _bodyPartsContainer = new GameObject(bodyContainerName);
-        _bodyPartsContainer.transform.SetParent(MapManager.Instance.transform);
-    }
-
     private void Update()
     { 
         HandleSwipe();
@@ -69,26 +60,26 @@ public class CharacterController : MonoBehaviour
     private void FindMovePaths(Vector3 direction)
     {
         if (direction == Vector3.zero) return;
-        int distanceMove = this.distanceMove;
+        int distanceUnit = MapManager.Instance.DistanceUnit; // Khoảng cách di chuyển theo đơn vị của bản đồ
 
         if (direction == Vector3.right || direction == Vector3.forward)
         {
-            distanceMove *= 1; // Chiều dương
+            distanceUnit *= 1; // Chiều dương
         }
         else if (direction == Vector3.left || direction == Vector3.back)
         {
-            distanceMove *= -1; // Chiều âm
+            distanceUnit *= -1; // Chiều âm
         }
         
         _movePaths.Clear();
 
         if (direction == Vector3.right || direction == Vector3.left)
         {
-            FindMovePathsOnX(distanceMove);
+            FindMovePathsOnX(distanceUnit);
         }
         else if (direction == Vector3.forward || direction == Vector3.back)
         {
-            FindMovePathsOnZ(distanceMove);
+            FindMovePathsOnZ(distanceUnit);
         }
         
     }
@@ -203,6 +194,6 @@ public class CharacterController : MonoBehaviour
     
     private void SpawnBodyParts(Vector3 spawnPosition)
     {
-        Instantiate(bodyPartPrefab, spawnPosition, Quaternion.identity, _bodyPartsContainer.transform);
+        Instantiate(bodyPartPrefab, spawnPosition, Quaternion.identity, MapManager.Instance.CharacterBodyContainer);
     }
 }

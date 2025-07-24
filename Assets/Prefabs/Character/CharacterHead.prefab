@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7009517786836390}
   - component: {fileID: 5302858966517517899}
   - component: {fileID: 1569770696702929428}
+  - component: {fileID: 8012613879530339518}
   - component: {fileID: 7457484482805527416}
   m_Layer: 0
   m_Name: CharacterHead
@@ -66,6 +67,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9cf310909044484bcf43a199766f03a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8012613879530339518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764024471322597292}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!65 &7457484482805527416
 BoxCollider:
   m_ObjectHideFlags: 0

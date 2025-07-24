@@ -1,19 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour
 {
     [Header("Map Settings")]
     private int _mapWidth;
     private int _mapLength;
+    private const int _distanceUnit = 2;
+    private List<Tile> _tiles = new List<Tile>();
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Transform tileMapContainer;
     [SerializeField] private Transform obstacleContainer;
+    [SerializeField] private Transform characterContainer;
+    [SerializeField] private Transform characterBodyContainer;
     [SerializeField] private Vector3 defaultCharacterPosition = new Vector3(0, 0.25f, 0);
-    private const int _distanceUnit = 2;
-    private List<Tile> _tiles = new List<Tile>();
     
     [Header("Character Settings")]
     [SerializeField] private GameObject characterPrefab;
@@ -34,13 +34,16 @@ public class MapManager : MonoBehaviour
         // Gán instance và đánh dấu không bị hủy khi load scene khác
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void Start()
+    {
         GenerateDefaultMap();
     }
     
     private void GenerateDefaultMap()
     {
         GenerateMap(5, 5);
-        //_mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, defaultCharacterPosition);
     }
     
     // Only create map
@@ -48,15 +51,32 @@ public class MapManager : MonoBehaviour
     {
         _mapWidth = Mathf.Max(1, width); // đảm bảo kích thước >= 1
         _mapLength = Mathf.Max(1, length);
-        
         CreateMap();
+        _mapState = null;
+        GenerateCharacter(defaultCharacterPosition);
     }
     
     // Only create character
     public void GenerateCharacter(Vector3 characterPosition)
     {
-        GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
-        character.transform.SetParent(transform);
+        if (_mapState != null && !_mapState.HasCharacterAt(characterPosition) || _mapState == null)
+        {
+            GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
+            character.transform.SetParent(characterContainer);
+        
+            if (character.TryGetComponent(out CharacterController characterController))
+            {
+                // Thêm vào MapState
+                if (_mapState == null)
+                {
+                    _mapState = new MapState(_mapWidth, _mapLength, _distanceUnit, _tiles, characterController);
+                }
+                else
+                {
+                    _mapState.AddCharacter(characterController);
+                }
+            }
+        }
     }
     
     private void CreateMap()
@@ -70,7 +90,7 @@ public class MapManager : MonoBehaviour
             {
                 Vector3 position = new Vector3(x, 0, z);
                 GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity, tileMapContainer);
-                tile.transform.rotation = Quaternion.Euler(90f, 0, 0); 
+                tile.transform.rotation = Quaternion.Euler(0, 0, 0); 
                 
                 if (tile.TryGetComponent<Tile>(out Tile tileComponent))
                 {
@@ -83,6 +103,11 @@ public class MapManager : MonoBehaviour
 
     private void ClearMap()
     {
+        for (int i = 0; i < characterContainer.childCount; i++)
+        {
+            Destroy(characterContainer.GetChild(i).gameObject); // Xóa các nhân vật cũ nếu có
+        }
+        
         for (int i = 0; i < tileMapContainer.childCount; i++)
         {
             Destroy(tileMapContainer.GetChild(i).gameObject); // Xóa các tile cũ nếu có
@@ -93,12 +118,9 @@ public class MapManager : MonoBehaviour
             Destroy(obstacleContainer.GetChild(i).gameObject); // Xóa các obstacle cũ nếu có
         }
 
-        for (int i = 0; i < transform.childCount; i++)
+        for (int i = 0; i < characterBodyContainer.childCount; i++)
         {
-            if (transform.GetChild(i).name != "TileMapContainer" && transform.GetChild(i).name != "ObstacleContainer")
-            {
-                Destroy(transform.GetChild(i).gameObject); // Xóa các object khác nếu có
-            }
+            Destroy(characterBodyContainer.GetChild(i).gameObject); // Xóa các body cũ nếu có
         }
     }
 
@@ -128,6 +150,36 @@ public class MapManager : MonoBehaviour
     {
         get => _mapState;
         set => _mapState = value;
+    }
+    
+    public Transform TileMapContainer
+    {
+        get => tileMapContainer;
+        set => tileMapContainer = value;
+    }
+    
+    public Transform ObstacleContainer
+    {
+        get => obstacleContainer;
+        set => obstacleContainer = value;
+    }
+    
+    public Transform CharacterContainer
+    {
+        get => characterContainer;
+        set => characterContainer = value;
+    }
+    
+    public Transform CharacterBodyContainer
+    {
+        get => characterBodyContainer;
+        set => characterBodyContainer = value;
+    }
+    
+    public Vector3 DefaultCharacterPosition
+    {
+        get => defaultCharacterPosition;
+        set => defaultCharacterPosition = value;
     }
     
     

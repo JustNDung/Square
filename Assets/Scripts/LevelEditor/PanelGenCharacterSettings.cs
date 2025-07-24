@@ -12,6 +12,7 @@ public class PanelGenCharacterSettings : MonoBehaviour
     private void Awake()
     {
         SetDefaultValues();
+        characterY.interactable = false;
         generateCharacterButton.onClick.AddListener(OnClickGenerateCharacterButton);
     }
     

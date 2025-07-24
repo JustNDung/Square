@@ -9,7 +9,8 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable
 
     public void Apply(CharacterEditorData characterEditorData)
     {
-        _characterController.transform.position = characterEditorData.initialPosition;
+        Vector3 newPos = characterEditorData.initialPosition;
+        MapManager.Instance.MapState.ModifyCharacterPosition(_characterController, newPos);
     }
     
     public CharacterEditorData GetData()
@@ -24,6 +25,14 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable
     {
         MessageDispatcher.Send(GameEvent.OnCharacterEditorRightClick, this);
     }
+    
+    public void OnESCDown()
+    {
+        MessageDispatcher.Send(GameEvent.OnCharacterEditorLeftClick);
+    }
+    
+    // Getters Setters
+    public CharacterController CharacterController => _characterController;
     
 }
 

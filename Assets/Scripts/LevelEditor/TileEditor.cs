@@ -17,7 +17,12 @@ public class TileEditor : MonoBehaviour, IEditorInteractable
     {
         MessageDispatcher.Send(GameEvent.OnTileEditorRightClick, this);
     }
-    
+
+    public void OnESCDown()
+    {
+        MessageDispatcher.Send(GameEvent.OnTileEditorLeftClick);
+    }
+
     public void Apply(TileEditorData tileEditorData)
     {
         _tile.IsWalkable = tileEditorData.isWalkable;

@@ -23,6 +23,7 @@ public class PanelTileSettings : MonoBehaviour
         walkableToggle.onValueChanged.AddListener(OnWalkableToggleChanged);
         
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
+        MessageDispatcher.Subscribe(GameEvent.OnTileEditorLeftClick, OnTileEditorLeftClick);
     }
 
     private void OnWalkableToggleChanged(bool isWalkable)
@@ -69,9 +70,17 @@ public class PanelTileSettings : MonoBehaviour
         }
     }
     
+    private void OnTileEditorLeftClick(object args)
+    {
+        // Handle left click if needed
+        // This could be used to close the panel or perform other actions
+        gameObject.SetActive(false);
+    }
+    
 
     private void OnDisable()
     {
-        MessageDispatcher.Unsubscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
+        // MessageDispatcher.Unsubscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
+        // MessageDispatcher.Unsubscribe(GameEvent.OnTileEditorLeftClick, OnTileEditorLeftClick);
     }
 }
