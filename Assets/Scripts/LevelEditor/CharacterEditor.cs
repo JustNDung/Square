@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
-public class CharacterEditor : MonoBehaviour, IEditorInteractable
+public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 {
     private CharacterController _characterController;
     private void Awake()
     {       
         _characterController = GetComponent<CharacterController>();
+        MessageDispatcher.Subscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
     }
 
     public void Apply(CharacterEditorData characterEditorData)
@@ -29,6 +30,11 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable
     public void OnESCDown()
     {
         MessageDispatcher.Send(GameEvent.OnCharacterEditorLeftClick);
+    }
+    
+    private void OnSaveLevelEditor(object args)
+    {
+        GameManager.Instance.GameEditor.CharacterEditors.Add(this);
     }
     
     // Getters Setters

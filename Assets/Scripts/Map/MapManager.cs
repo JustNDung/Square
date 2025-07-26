@@ -4,10 +4,11 @@ using System.Collections.Generic;
 public class MapManager : MonoBehaviour
 {
     [Header("Map Settings")]
-    private int _mapWidth;
-    private int _mapLength;
+    private int _mapWidth = 5; // Default width of the map
+    private int _mapLength = 5; // Default length of the map
     private const int _distanceUnit = 2;
     private List<Tile> _tiles = new List<Tile>();
+    private MapEditor _mapEditor;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Transform tileMapContainer;
     [SerializeField] private Transform obstacleContainer;
@@ -34,29 +35,21 @@ public class MapManager : MonoBehaviour
         // Gán instance và đánh dấu không bị hủy khi load scene khác
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        _mapEditor = GetComponent<MapEditor>();
     }
 
     private void Start()
     {
-        GenerateDefaultMap();
+        GenerateMap();
     }
     
-    private void GenerateDefaultMap()
+    public void GenerateMap()
     {
-        GenerateMap(5, 5);
-    }
-    
-    // Only create map
-    public void GenerateMap(int width, int length)
-    {
-        _mapWidth = Mathf.Max(1, width); // đảm bảo kích thước >= 1
-        _mapLength = Mathf.Max(1, length);
         CreateMap();
         _mapState = null;
-        GenerateCharacter(defaultCharacterPosition);
+        GenerateCharacter(defaultCharacterPosition);        
     }
     
-    // Only create character
     public void GenerateCharacter(Vector3 characterPosition)
     {
         if (_mapState != null && _mapState.CanGenerateCharacterAt(characterPosition) || _mapState == null)
@@ -180,6 +173,12 @@ public class MapManager : MonoBehaviour
     {
         get => defaultCharacterPosition;
         set => defaultCharacterPosition = value;
+    }
+
+    public MapEditor MapEditor
+    {
+        get => _mapEditor;
+        set => _mapEditor = value;
     }
     
     

@@ -17,6 +17,7 @@ public class PanelTileSettings : MonoBehaviour
         
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorLeftClick, OnTileEditorLeftClick);
+        
     }
 
     private void OnWalkableToggleChanged(bool isWalkable)

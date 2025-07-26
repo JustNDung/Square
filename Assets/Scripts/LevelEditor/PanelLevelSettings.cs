@@ -1,45 +1,58 @@
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-
 public class PanelLevelSettings : MonoBehaviour
 {
-    [Header("Level Settings")]
     [SerializeField] private TMP_InputField levelIdIpt;
-    
-    [Header("Map Settings")]
-    [SerializeField] private TMP_InputField mapWidthIpt;
-    [SerializeField] private TMP_InputField mapLengthIpt;
-    [SerializeField] private Button generateMapBtn;
-    
-
+    [SerializeField] private Button saveLevelBtn;
+    [SerializeField] private Button loadLevelBtn;
+    [SerializeField] private Button deleteLevelBtn;
+    [SerializeField] private int defaultLevelId = 1; // Default level ID
     private void Awake()
     {
-        Initialize();
-    }
-
-    private void Initialize()
-    {
-        // Set default values for inputs
-        levelIdIpt.text = "1"; // Default level ID
-        mapWidthIpt.text = "5"; // Default map width
-        mapLengthIpt.text = "5"; // Default map length
-        
-        // Add listener to the generate map button
-        generateMapBtn.onClick.AddListener(OnClickGenerateMapButton);
+        saveLevelBtn.onClick.AddListener(OnSaveLevelEditor);
+        levelIdIpt.onEndEdit.AddListener(OnEndEditLevelId);
     }
     
-    private void OnClickGenerateMapButton()
+    private void Start()
     {
-        if (int.TryParse(mapWidthIpt.text, out int width) && int.TryParse(mapLengthIpt.text, out int length))
+        SetDefaultValues();
+    }
+    
+    private void SetDefaultValues()
+    {
+        levelIdIpt.text = defaultLevelId.ToString();
+        ApplyLevelEditorData(defaultLevelId);
+    }
+    
+    private void OnEndEditLevelId(string value)
+    {
+        if (int.TryParse(value, out int levelId))
         {
-            MapManager.Instance.GenerateMap(width, length);
-            
+            ApplyLevelEditorData(levelId);
         }
         else
         {
-            Debug.LogError("Invalid map dimensions input.");
+            Debug.LogError("Invalid input for level ID.");
         }
     }
 
+    private void ApplyLevelEditorData(int levelId)
+    {
+        // Update the level ID in the game manager or relevant system
+        LevelEditorData levelEditorData = new LevelEditorData
+        {
+            levelId = levelId
+        };
+
+        LevelManager.Instance.LevelEditor.Apply(levelEditorData);
+    }
+
+    private void OnSaveLevelEditor()
+    {
+        GameManager.Instance.GameEditor.DeleteData(); // Clear previous data
+        MessageDispatcher.Send(GameEvent.SaveLevelEditor); // Notify all subscribers to save their data
+        GameManager.Instance.GameEditor.SaveLevelEditor(); // Save the level editor data
+    }
+    
 }

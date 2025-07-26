@@ -5,4 +5,6 @@
     
     public const string OnCharacterEditorRightClick = "OnCharacterEditorRightClick";
     public const string OnCharacterEditorLeftClick = "OnCharacterEditorLeftClick";
+    
+    public const string SaveLevelEditor = "SaveLevelEditor";
 }

@@ -1,22 +1,24 @@
 ﻿
 using UnityEngine;
 
-public class TileEditor : MonoBehaviour, IEditorInteractable
+public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 {
     private Tile _tile;
+    private GameObject _obstacle;
     [SerializeField] private GameObject obstaclePrefab;
     [SerializeField] private float obstacleY = 1f;
-    private GameObject _obstacle;
+    
     
     private void Awake()
     {
         _tile = GetComponent<Tile>();
+        MessageDispatcher.Subscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
     }
     
     public void OnEditorRightClick()        
     {
         MessageDispatcher.Send(GameEvent.OnTileEditorRightClick, this);
-    }
+    }       
 
     public void OnESCDown()
     {
@@ -27,6 +29,11 @@ public class TileEditor : MonoBehaviour, IEditorInteractable
     {
         _tile.IsWalkable = tileEditorData.isWalkable;
         SetupObstacle(tileEditorData);
+    }
+    
+    private void OnSaveLevelEditor(object args)
+    {
+        GameManager.Instance.GameEditor.TileEditors.Add(this);
     }
 
     private void SetupObstacle(TileEditorData tileEditorData)

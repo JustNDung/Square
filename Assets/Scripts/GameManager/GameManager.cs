@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    private GameEditor _gameEditor;
     
     private void Awake()
     {
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
 
         // Init SaveLoadService
         SaveLoadService.Initialize();
+        _gameEditor = GetComponent<GameEditor>();   
     }
 
     private void Start()
@@ -37,6 +39,13 @@ public class GameManager : MonoBehaviour
     public void SaveGame()
     {
         
+    }
+    
+    // Getters and Setters
+    public GameEditor GameEditor
+    {
+        get { return _gameEditor; }
+        set { _gameEditor = value; }
     }
 
     
