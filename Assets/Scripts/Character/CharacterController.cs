@@ -15,6 +15,7 @@ public class CharacterController : MonoBehaviour
     private bool _isMouseSwiping = false;
     private Coroutine _moveCoroutine;
     private List<Vector3> _movePaths = new List<Vector3>(); // Lưu vị trí các tile đi qua trong 1 lần di chuyển
+    private List<Vector3> _visitedTiles = new List<Vector3>(); // Lưu các tile đã đi qua của nhân vật
     
     [Header("Body Parts Settings")]
     [SerializeField] private GameObject bodyPartPrefab; // Prefab cho các phần thân
@@ -25,6 +26,9 @@ public class CharacterController : MonoBehaviour
     {
         _characterBodyContainer = new GameObject("BodyPartsOf" + gameObject.name);
         _characterBodyContainer.transform.SetParent(MapManager.Instance.CharacterBodyContainer);
+        
+        _initialPosition = transform.position;
+        _visitedTiles.Add(transform.position - new Vector3(0, 0.25f, 0)); // Lưu vị trí ban đầu vào danh sách đã đi qua
     }
     
     private void Update()
@@ -148,8 +152,10 @@ public class CharacterController : MonoBehaviour
             {
                 // Đánh dấu đã đi qua
                 MapManager.Instance.MapState.VisitTile(targetTile);
+                _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
+                
                 currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
-                _movePaths.Add(currentPos); // Lưu tile vừa rời khoi
+                _movePaths.Add(currentPos); // Lưu tile đi qua trong 1 lần di chuyển
             }
             else
             {
@@ -173,6 +179,8 @@ public class CharacterController : MonoBehaviour
             {
                 // Đánh dấu đã đi qua
                 MapManager.Instance.MapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
+                _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
+                
                 currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu các tile đi qua trong 1 lần di chuyển
             }
@@ -216,5 +224,10 @@ public class CharacterController : MonoBehaviour
     {
         get => _characterBodyContainer;
         set => _characterBodyContainer = value; // Cần thiết nếu muốn thay đổi container    
+    }
+    public List<Vector3> VisitedTiles
+    {
+        get => _visitedTiles;
+        set => _visitedTiles = value; // Cần thiết nếu muốn thay đổi danh sách đã đi qua
     }
 }

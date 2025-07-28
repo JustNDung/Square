@@ -175,6 +175,13 @@ public class MapState
 
         CharacterAtPosition.Remove(pos);
         PositionOfCharacter.Remove(characterController);
+
+        List<Vector3> tilesToUnvisit = characterController.VisitedTiles;
+        
+        foreach (var tile in tilesToUnvisit)
+        {
+            UnvisitTile(tile); // Bỏ đánh dấu ô đã đi qua
+        }
     }
     
     public bool HasCharacterAt(Vector3 pos)
