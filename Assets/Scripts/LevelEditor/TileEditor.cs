@@ -8,7 +8,6 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     [SerializeField] private GameObject obstaclePrefab;
     [SerializeField] private float obstacleY = 1f;
     
-    
     private void Awake()
     {
         _tile = GetComponent<Tile>();
@@ -52,7 +51,10 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     {
         return new TileEditorData
         {
-            isWalkable = _tile.IsWalkable
+            isWalkable = _tile.IsWalkable,
+            posX = _tile.transform.position.x,
+            posY = _tile.transform.position.y,
+            posZ = _tile.transform.position.z
         };
     }
 
@@ -74,4 +76,7 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 public class TileEditorData
 {
     public bool isWalkable;
+    public float posX;
+    public float posY;
+    public float posZ;
 }

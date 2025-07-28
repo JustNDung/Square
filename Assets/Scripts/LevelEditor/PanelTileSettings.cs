@@ -1,4 +1,5 @@
 ﻿
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,15 +10,21 @@ public class PanelTileSettings : MonoBehaviour
 
     [Header("UI Elements")]
     [SerializeField] private Toggle walkableToggle;
+    [SerializeField] private TMP_InputField tilePosX;
+    [SerializeField] private TMP_InputField tilePosY;
+    [SerializeField] private TMP_InputField tilePosZ;
     private void Awake()
     {
         gameObject.SetActive(false);
+        
+        tilePosX.interactable = false;
+        tilePosY.interactable = false;
+        tilePosZ.interactable = false;
         
         walkableToggle.onValueChanged.AddListener(OnWalkableToggleChanged);
         
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorLeftClick, OnTileEditorLeftClick);
-        
     }
 
     private void OnWalkableToggleChanged(bool isWalkable)
@@ -51,6 +58,9 @@ public class PanelTileSettings : MonoBehaviour
             _currentTileData = _targetTileEditor.GetData();
 
             walkableToggle.isOn = _currentTileData.isWalkable;
+            tilePosX.text = _currentTileData.posX.ToString("F2");
+            tilePosY.text = _currentTileData.posY.ToString("F2");
+            tilePosZ.text = _currentTileData.posZ.ToString("F2");
         }
     }
     

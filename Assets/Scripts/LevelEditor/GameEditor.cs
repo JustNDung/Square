@@ -23,7 +23,10 @@ public class GameEditor : MonoBehaviour
             TileData tileData = new TileData
             {
                 levelId = _levelEditor.GetData().levelId,
-                isWalkable = tileEditorData.isWalkable
+                isWalkable = tileEditorData.isWalkable,
+                posX = tileEditorData.posX,
+                posY = tileEditorData.posY,
+                posZ = tileEditorData.posZ
             };
             tileDatas.Add(tileData);
         }
@@ -68,6 +71,25 @@ public class GameEditor : MonoBehaviour
         _levelEditor = null;
         _tileEditors.Clear();
         _characterEditors.Clear();
+    }
+
+    public void LoadLevelEditor(string levelId)
+    {
+        SaveLoadService.LoadGameLevel(levelId, (gameLevelData) =>
+        {
+            if (gameLevelData != null)
+            {
+                LevelData levelData = gameLevelData.level;
+                
+                LevelEditorData levelEditorData = new LevelEditorData
+                {
+                    levelId = levelData.levelId
+                };
+                LevelManager.Instance.LevelEditor.Apply(levelEditorData);
+
+                MapManager.Instance.GenerateMapFromData(gameLevelData);
+            }
+        });
     }
     
     // Getters and Setters

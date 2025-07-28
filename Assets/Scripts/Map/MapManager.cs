@@ -10,6 +10,7 @@ public class MapManager : MonoBehaviour
     private List<Tile> _tiles = new List<Tile>();
     private MapEditor _mapEditor;
     [SerializeField] private GameObject tilePrefab;
+    [SerializeField] private GameObject obstaclePrefab;
     [SerializeField] private Transform tileMapContainer;
     [SerializeField] private Transform obstacleContainer;
     [SerializeField] private Transform characterContainer;
@@ -40,14 +41,64 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
-        GenerateMap();
+        GenerateBasicMapForEditor();
     }
     
-    public void GenerateMap()
+    public void GenerateBasicMapForEditor()
     {
-        CreateMap();
+        CreateBasicMapForEditor();
         _mapState = null;
         GenerateCharacter(defaultCharacterPosition);        
+    }
+
+    public void GenerateMapFromData(GameLevelData data)
+    {
+        ClearMap();
+        _mapState = null;
+        
+        // For map
+        MapData mapData = data.map;
+        _mapWidth = mapData.width;
+        _mapLength = mapData.length;
+        
+        // For characters
+        List<CharacterData> characterDatas = data.characters;
+        foreach (var characterData in characterDatas)
+        {
+            Vector3 characterPosition = new Vector3(
+                characterData.posX,
+                characterData.posY,
+                characterData.posZ
+            );
+            GenerateCharacter(characterPosition);
+        }
+        
+        // For tiles
+        List<TileData> tileDatas = data.tiles;
+        foreach (var tileData in tileDatas)
+        {
+            Vector3 tilePosition = new Vector3(
+                tileData.posX,
+                tileData.posY,
+                tileData.posZ
+            );
+            GameObject tile = Instantiate(tilePrefab, tilePosition, Quaternion.identity, tileMapContainer);
+            if (tile.TryGetComponent<Tile>(out Tile tileComponent))
+            {
+                tileComponent.IsWalkable = tileData.isWalkable;
+                if (!tileData.isWalkable)
+                {
+                    GameObject obstacle = Instantiate(obstaclePrefab, tilePosition + new Vector3(0f, 0.25f, 0f), Quaternion.identity, obstacleContainer);
+                    _mapState.AddUnwalkableTile(tilePosition); // MapState is initialized in GenerateCharacter.
+                }
+                _tiles.Add(tileComponent);
+            }
+            else
+            {
+                Debug.LogWarning("Tile prefab does not have Tile component attached.");
+            }
+        }
+
     }
     
     public void GenerateCharacter(Vector3 characterPosition)
@@ -73,7 +124,7 @@ public class MapManager : MonoBehaviour
         }
     }
     
-    private void CreateMap()
+    private void CreateBasicMapForEditor()
     {
         ClearMap();
         
@@ -92,7 +143,6 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
-        
     }
 
     private void ClearMap()
@@ -181,7 +231,6 @@ public class MapManager : MonoBehaviour
         get => _mapEditor;
         set => _mapEditor = value;
     }
-    
     
     #endregion
    
