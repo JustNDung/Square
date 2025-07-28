@@ -37,7 +37,7 @@ public class GameEditor : MonoBehaviour
                 levelId = _levelEditor.GetData().levelId,
                 posX = characterEditorData.initialPosition.x,
                 posY = characterEditorData.initialPosition.y,
-                posZ = characterEditorData.initialPosition.z
+                posZ = characterEditorData.initialPosition.z,
             };
             characterDatas.Add(characterData);
         }
@@ -61,8 +61,6 @@ public class GameEditor : MonoBehaviour
 
         SaveLoadService.SaveGameLevel(gameLevelData);
     }
-    
-    
     
     public void DeleteData()
     {

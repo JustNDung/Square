@@ -22,7 +22,8 @@ public class PanelGenCharacterSettings : MonoBehaviour
             float.TryParse(characterY.text, out float y) &&
             float.TryParse(characterZ.text, out float z))
         {
-            MapManager.Instance.GenerateCharacter(new Vector3(x, y, z));
+            Vector3 initialPosition = new Vector3(x, y, z);
+            MapManager.Instance.GenerateCharacter(initialPosition);
         }
         else
         {

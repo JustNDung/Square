@@ -27,6 +27,11 @@ public class MapEditor : MonoBehaviour
         GameManager.Instance.GameEditor.MapEditor = this;
     }
     
+    private void OnDestroy()
+    {
+        MessageDispatcher.Unsubscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
+    }
+    
 }
 
 [System.Serializable]

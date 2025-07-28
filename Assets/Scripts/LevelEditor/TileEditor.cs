@@ -62,6 +62,11 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
         _obstacle = Instantiate(obstaclePrefab, new Vector3(transform.position.x, obstacleY, transform.position.z), 
             Quaternion.identity, obstacleContainer);
     }
+
+    private void OnDestroy()
+    {
+        MessageDispatcher.Unsubscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
+    }
 }
 
 

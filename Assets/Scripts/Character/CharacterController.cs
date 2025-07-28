@@ -9,6 +9,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private float moveSpeed = 8f; // Tăng tốc độ di chuyển
     [SerializeField] private float smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
     [SerializeField] private float characterY = 0.25f;
+    private Vector3 _initialPosition; // Vị trí ban đầu của nhân vật
     private Vector3 _mouseStart = Vector3.zero;
     private Vector3 _mouseEnd = Vector3.zero;
     private bool _isMouseSwiping = false;
@@ -18,6 +19,13 @@ public class CharacterController : MonoBehaviour
     [Header("Body Parts Settings")]
     [SerializeField] private GameObject bodyPartPrefab; // Prefab cho các phần thân
     [SerializeField] [Range(0f, 1f)] private float spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
+    private GameObject _characterBodyContainer; // Container chứa các phần thân của nhân vật
+
+    private void Awake()
+    {
+        _characterBodyContainer = new GameObject("BodyPartsOf" + gameObject.name);
+        _characterBodyContainer.transform.SetParent(MapManager.Instance.CharacterBodyContainer);
+    }
     
     private void Update()
     { 
@@ -194,6 +202,19 @@ public class CharacterController : MonoBehaviour
     
     private void SpawnBodyParts(Vector3 spawnPosition)
     {
-        Instantiate(bodyPartPrefab, spawnPosition, Quaternion.identity, MapManager.Instance.CharacterBodyContainer);
+        Instantiate(bodyPartPrefab, spawnPosition, Quaternion.identity, _characterBodyContainer.transform);
+    }
+    
+    // Getters and Setters
+    public Vector3 InitialPosition 
+    {
+        get => _initialPosition;
+        set => _initialPosition = value;
+    }
+
+    public GameObject CharacterBodyContainer
+    {
+        get => _characterBodyContainer;
+        set => _characterBodyContainer = value; // Cần thiết nếu muốn thay đổi container    
     }
 }

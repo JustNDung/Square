@@ -25,6 +25,11 @@ public class LevelEditor : MonoBehaviour, IDataProvider
     {
         GameManager.Instance.GameEditor.LevelEditor = this;
     }
+    
+    private void OnDestroy()
+    {
+        MessageDispatcher.Unsubscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
+    }
 }
 
 [System.Serializable]

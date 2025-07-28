@@ -59,6 +59,7 @@ public class MapManager : MonoBehaviour
         
             if (character.TryGetComponent(out CharacterController characterController))
             {
+                characterController.InitialPosition = characterPosition;
                 // Thêm vào MapState
                 if (_mapState == null)
                 {

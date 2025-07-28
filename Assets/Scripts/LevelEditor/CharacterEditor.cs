@@ -18,7 +18,8 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     {
         return new CharacterEditorData
         {
-            initialPosition = _characterController.transform.position
+            initialPosition = _characterController.InitialPosition,
+            currentPosition = _characterController.transform.position
         };
     }
     
@@ -37,6 +38,11 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
         GameManager.Instance.GameEditor.CharacterEditors.Add(this);
     }
     
+    private void OnDestroy()
+    {
+        MessageDispatcher.Unsubscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
+    }
+    
     // Getters Setters
     public CharacterController CharacterController => _characterController;
     
@@ -46,4 +52,5 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 public class CharacterEditorData
 {
     public Vector3 initialPosition;
+    public Vector3 currentPosition;
 }
