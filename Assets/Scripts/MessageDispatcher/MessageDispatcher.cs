@@ -1,32 +1,84 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class MessageDispatcher
 {
-    private static Dictionary<GameEvent, Action<object>> _eventTable = new();
+    private static readonly Dictionary<string, List<Action<object>>> _eventTable = new();
 
-    public static void Subscribe(GameEvent eventType, Action<object> callback)
+    // Debugging toggle
+    public static bool EnableDebugLog = true;
+
+    public static void Subscribe(string eventName, Action<object> callback)
     {
-        if (!_eventTable.ContainsKey(eventType))
-            _eventTable[eventType] = delegate { };
+        if (!_eventTable.ContainsKey(eventName))
+        {
+            _eventTable[eventName] = new List<Action<object>>();
+        }
 
-        _eventTable[eventType] += callback;
+        _eventTable[eventName].Add(callback);
+
+        if (EnableDebugLog)
+            Debug.Log($"[MessageDispatcher] Subscribed to <b>{eventName}</b> ➜ {callback.Method.DeclaringType}.{callback.Method.Name}");
     }
 
-    public static void Unsubscribe(GameEvent eventType, Action<object> callback)
+    public static void Unsubscribe(string eventName, Action<object> callback)
     {
-        if (_eventTable.ContainsKey(eventType))
-            _eventTable[eventType] -= callback;
+        if (_eventTable.TryGetValue(eventName, out var callbackList))
+        {
+            callbackList.Remove(callback);
+            if (callbackList.Count == 0)
+                _eventTable.Remove(eventName);
+        }
+
+        if (EnableDebugLog)
+            Debug.Log($"[MessageDispatcher] Unsubscribed from <b>{eventName}</b> ➜ {callback.Method.DeclaringType}.{callback.Method.Name}");
     }
 
-    public static void Dispatch(GameEvent eventType, object data = null)
+    public static void Send(string eventName, object data = null)
     {
-        if (_eventTable.TryGetValue(eventType, out var action))
-            action?.Invoke(data);
+        if (EnableDebugLog)
+        {
+            string message;
+
+            if (data == null)
+            {
+                message = "null";
+            }
+            else if (data.GetType().IsSerializable)
+            {
+                try
+                {
+                    message = JsonUtility.ToJson(data);
+                }
+                catch
+                {
+                    message = data.ToString();
+                }
+            }
+            else
+            {
+                message = data.ToString();
+            }
+
+            Debug.Log($"<color=cyan>[MessageDispatcher] Fired:</color> <b>{eventName}</b> ➜ Data: <i>{message}</i>");
+            DebugMessageOverlay.Instance?.AddLog(eventName, message);
+        }
+
+        if (_eventTable.TryGetValue(eventName, out var callbackList))
+        {
+            foreach (var callback in callbackList)
+            {
+                callback?.Invoke(data);
+            }
+        }
     }
+
 
     public static void Clear()
     {
         _eventTable.Clear();
+        if (EnableDebugLog)
+            Debug.Log("<color=red>[MessageDispatcher] All listeners cleared.</color>");
     }
 }

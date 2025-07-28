@@ -1,5 +1,10 @@
-﻿public enum GameEvent
+﻿public class GameEvent
 {
+    public const string OnTileEditorRightClick = "OnTileEditorRightClick";
+    public const string OnTileEditorLeftClick = "OnTileEditorLeftClick";
     
-    // thêm tùy ý
+    public const string OnCharacterEditorRightClick = "OnCharacterEditorRightClick";
+    public const string OnCharacterEditorLeftClick = "OnCharacterEditorLeftClick";
+    
+    public const string SaveLevelEditor = "SaveLevelEditor";
 }
