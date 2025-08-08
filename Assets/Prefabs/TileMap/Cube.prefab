@@ -136,7 +136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a3272e00554730bdf435f83eec7249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstaclePrefab: {fileID: 7827798504404313476, guid: ef1bab9cacfd4904bbd176813cdd3494, type: 3}
 --- !u!114 &4760155085161359561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,3 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstacle: {fileID: 7827798504404313476, guid: ef1bab9cacfd4904bbd176813cdd3494, type: 3}
   teleport: {fileID: 8374218928132227125, guid: 1cf2762df7ff9da44a16e7fd50fdf3ae, type: 3}
+  down: {fileID: 9132098855345150336, guid: 335d093d9b86ca0469d04d34929fa559, type: 3}
+  left: {fileID: 3732899056023855412, guid: 6dc801192c4dc7e44a69b9df3600476c, type: 3}
+  right: {fileID: 1564244486849272064, guid: c12266d292e3dca4cb16e88add817b28, type: 3}
+  up: {fileID: 2383647134227501679, guid: e8324ea38b87da34e8fa14ec7ad7b9be, type: 3}

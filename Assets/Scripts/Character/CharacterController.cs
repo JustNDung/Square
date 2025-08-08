@@ -159,16 +159,23 @@ public class CharacterController : MonoBehaviour
                         _movePaths.Add(targetTile + new Vector3(0, 0.25f, 0));
                         currentPos = new Vector3(tempMState.TeleportPair[targetTile].x, characterY, tempMState.TeleportPair[targetTile].z); // teleport
                         _movePaths.Add(currentPos);
-                        
                         FindMovePathsOnZ(distanceMove, currentPos);
                         break;
                     } 
+                    else
+                    {
+                        currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
+                        _movePaths.Add(currentPos);
+                        UpdateMovePathsWithSpecialTile(targetTile, distanceMove, currentPos);
+                        break;
+                    }
+                    
+                    
                 }
                 
                 // Đánh dấu đã đi qua
                 MapManager.Instance.MapState.VisitTile(targetTile);
                 _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
-                
                 currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu tile đi qua trong 1 lần di chuyển
             }
@@ -199,10 +206,15 @@ public class CharacterController : MonoBehaviour
                         _movePaths.Add(targetTile + new Vector3(0, 0.25f, 0));
                         currentPos = new Vector3(tempMState.TeleportPair[targetTile].x, characterY, tempMState.TeleportPair[targetTile].z); // teleport
                         _movePaths.Add(currentPos);
-                        
                         FindMovePathsOnX(distanceMove, currentPos);
                         break;
-                    } 
+                    }
+                    else
+                    {
+                        currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
+                        UpdateMovePathsWithSpecialTile(targetTile, distanceMove, currentPos);
+                        break;
+                    }
                 }
                 
                 MapManager.Instance.MapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
@@ -218,11 +230,31 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-    private void UpdateMovePathsWithSpecialTile(TileType tileType, Vector3 direction)
+    private void UpdateMovePathsWithSpecialTile(Vector3 tilePos, int distanceMove, Vector3 currentPos)
     {
-        switch (tileType)
+        switch (MapManager.Instance.MapState.SpecialTiles[tilePos].TileType)
         {
             case TileType.Teleport:
+                break;
+            case TileType.Up:
+                if (distanceMove < 0) return;
+                _movePaths.Add(currentPos);
+                FindMovePathsOnZ(distanceMove, currentPos);
+                break;
+            case TileType.Down:
+                if (distanceMove > 0) return;
+                _movePaths.Add(currentPos);
+                FindMovePathsOnZ(distanceMove, currentPos);
+                break;
+            case TileType.Right:
+                if (distanceMove < 0) return;
+                _movePaths.Add(currentPos);
+                FindMovePathsOnX(distanceMove, currentPos);
+                break;
+            case TileType.Left:
+                if (distanceMove > 0) return;
+                _movePaths.Add(currentPos);
+                FindMovePathsOnX(distanceMove, currentPos);
                 break;
             default:
                 break;

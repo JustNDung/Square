@@ -4,10 +4,17 @@ public class TileView : MonoBehaviour
 { 
     private Transform _effectsContainer;
     [SerializeField] private GameObject obstacle;
+    
     [SerializeField] private GameObject teleport;
+    
+    [SerializeField] private GameObject down;
+    [SerializeField] private GameObject left;
+    [SerializeField] private GameObject right;
+    [SerializeField] private GameObject up;
 
     public void UpdateView(TileType tileType)
     {
+        CreateEffectsContainer();
         switch (tileType)
         {
             case TileType.Obstacle:
@@ -15,6 +22,18 @@ public class TileView : MonoBehaviour
                 break;
             case TileType.Teleport:
                 CreateTeleport();
+                break;
+            case TileType.Down:
+                CreateDown();
+                break;
+            case TileType.Left:
+                CreateLeft();
+                break;
+            case TileType.Right:
+                CreateRight();
+                break;
+            case TileType.Up:
+                CreateUp();
                 break;
             default:
                 if (_effectsContainer != null)
@@ -25,36 +44,51 @@ public class TileView : MonoBehaviour
         }
     }
     
+    private void CreateDown()
+    {
+        GameObject d = Instantiate(down, _effectsContainer);
+        d.transform.localPosition = new Vector3(0, 0.15f, 0);
+    }
+
+    private void CreateLeft()
+    {
+        GameObject l = Instantiate(left, _effectsContainer);
+        left.transform.localPosition = new Vector3(0, 0.15f, 0);
+    }
+
+    private void CreateRight()
+    {
+        GameObject r = Instantiate(right, _effectsContainer);
+        r.transform.localPosition = new Vector3(0, 0.15f, 0);
+    }
+
+    private void CreateUp()
+    {
+        GameObject u = Instantiate(up, _effectsContainer);
+        u.transform.localPosition = new Vector3(0, 0.15f, 0);
+    }
+    
     private void CreateObstacle()
     {
-        if (_effectsContainer != null)
-        {
-            Destroy(_effectsContainer.gameObject);
-            _effectsContainer = null;
-        }
-        
-        CreateEffectsContainer();
-        
         GameObject obs = Instantiate(obstacle, _effectsContainer);
         obs.transform.localPosition = new Vector3(0, 1f, 0);
     }
     
     private void CreateTeleport()
     {
-        if (_effectsContainer != null)
-        {
-            Destroy(_effectsContainer.gameObject);
-            _effectsContainer = null;
-        }
-        
-        CreateEffectsContainer();
-        
         GameObject tele = Instantiate(teleport, _effectsContainer);
         tele.transform.localPosition = new Vector3(0, 1f, 0);
     }
 
     private void CreateEffectsContainer()
     {
+        
+        if (_effectsContainer != null)
+        {
+            Destroy(_effectsContainer.gameObject);
+            _effectsContainer = null;
+        }
+        
         _effectsContainer = new GameObject("EffectsContainer").transform;
         _effectsContainer.SetParent(transform);
         _effectsContainer.localPosition = Vector3.zero;
