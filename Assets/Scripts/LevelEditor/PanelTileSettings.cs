@@ -2,6 +2,8 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 public class PanelTileSettings : MonoBehaviour
 {
@@ -9,7 +11,7 @@ public class PanelTileSettings : MonoBehaviour
     private TileEditorData _currentTileData;
 
     [Header("UI Elements")]
-    [SerializeField] private Toggle walkableToggle;
+    [SerializeField] private TMP_Dropdown tileTypeDropdown;
     [SerializeField] private TMP_InputField tilePosX;
     [SerializeField] private TMP_InputField tilePosY;
     [SerializeField] private TMP_InputField tilePosZ;
@@ -21,32 +23,35 @@ public class PanelTileSettings : MonoBehaviour
         tilePosY.interactable = false;
         tilePosZ.interactable = false;
         
-        walkableToggle.onValueChanged.AddListener(OnWalkableToggleChanged);
+        InitTileTypeDropdown();
         
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorRightClick, OnTileEditorRightClick);
         MessageDispatcher.Subscribe(GameEvent.OnTileEditorLeftClick, OnTileEditorLeftClick);
+        MessageDispatcher.Subscribe(GameEvent.ClosePopUp, ClosePopUp);
     }
+    
+    private void InitTileTypeDropdown()
+    {
+        tileTypeDropdown.ClearOptions();
 
-    private void OnWalkableToggleChanged(bool isWalkable)
+        var tileTypes = Enum.GetNames(typeof(TileType));
+        var options = new List<TMP_Dropdown.OptionData>();
+
+        foreach (var typeName in tileTypes)
+        {
+            options.Add(new TMP_Dropdown.OptionData(typeName));
+        }
+
+        tileTypeDropdown.AddOptions(options);
+        tileTypeDropdown.onValueChanged.AddListener(OnTileTypeChanged);
+    }
+    
+    private void OnTileTypeChanged(int index)
     {
         if (_targetTileEditor == null || _currentTileData == null) return;
 
-        _currentTileData.isWalkable = isWalkable;
+        _currentTileData.tileType = (TileType)index;
         _targetTileEditor.Apply(_currentTileData);
-
-        UpdateTileState(isWalkable);
-    }
-
-    private void UpdateTileState(bool isWalkable)
-    {
-        if (!isWalkable)
-        {
-            MapManager.Instance.MapState.AddUnwalkableTile(_targetTileEditor.transform.position);
-        }
-        else
-        {
-            MapManager.Instance.MapState.RemoveUnwalkableTile(_targetTileEditor.transform.position);
-        }
     }
 
     private void OnTileEditorRightClick(object args)
@@ -56,8 +61,8 @@ public class PanelTileSettings : MonoBehaviour
         {
             _targetTileEditor = targetTileEditor;
             _currentTileData = _targetTileEditor.GetData();
-
-            walkableToggle.isOn = _currentTileData.isWalkable;
+            
+            tileTypeDropdown.value = (int)_currentTileData.tileType;
             tilePosX.text = _currentTileData.posX.ToString("F2");
             tilePosY.text = _currentTileData.posY.ToString("F2");
             tilePosZ.text = _currentTileData.posZ.ToString("F2");
@@ -66,8 +71,11 @@ public class PanelTileSettings : MonoBehaviour
     
     private void OnTileEditorLeftClick(object args)
     {
-        // Handle left click if needed
-        // This could be used to close the panel or perform other actions
+        gameObject.SetActive(false);
+    }
+    
+    private void ClosePopUp(object args)
+    {
         gameObject.SetActive(false);
     }
     

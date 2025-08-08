@@ -23,7 +23,7 @@ public class GameEditor : MonoBehaviour
             TileData tileData = new TileData
             {
                 levelId = _levelEditor.GetData().levelId,
-                isWalkable = tileEditorData.isWalkable,
+                tileType =  tileEditorData.tileType,
                 posX = tileEditorData.posX,
                 posY = tileEditorData.posY,
                 posZ = tileEditorData.posZ

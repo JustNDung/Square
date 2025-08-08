@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3387558558567555975}
   - component: {fileID: 5434039094261784708}
   - component: {fileID: 4760155085161359561}
+  - component: {fileID: 399891441527418946}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -136,7 +137,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   obstaclePrefab: {fileID: 7827798504404313476, guid: ef1bab9cacfd4904bbd176813cdd3494, type: 3}
-  obstacleY: 1
 --- !u!114 &4760155085161359561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,3 +155,17 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &399891441527418946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2595019040812038482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 512d1f42708e4c7988458936352212af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  obstacle: {fileID: 7827798504404313476, guid: ef1bab9cacfd4904bbd176813cdd3494, type: 3}
+  teleport: {fileID: 8374218928132227125, guid: 1cf2762df7ff9da44a16e7fd50fdf3ae, type: 3}

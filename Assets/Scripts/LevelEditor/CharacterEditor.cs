@@ -32,7 +32,12 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     {
         MessageDispatcher.Send(GameEvent.OnCharacterEditorLeftClick);
     }
-    
+
+    public void ClosePopUp()
+    {
+        MessageDispatcher.Send(GameEvent.ClosePopUp);
+    }
+
     private void OnSaveLevelEditor(object args)
     {
         GameManager.Instance.GameEditor.CharacterEditors.Add(this);

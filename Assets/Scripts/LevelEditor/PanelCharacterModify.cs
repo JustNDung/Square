@@ -32,6 +32,7 @@ public class PanelCharacterModify : MonoBehaviour
         
         MessageDispatcher.Subscribe(GameEvent.OnCharacterEditorRightClick, OnCharacterEditorRightClick);
         MessageDispatcher.Subscribe(GameEvent.OnCharacterEditorLeftClick, OnCharacterEditorLeftClick);
+        MessageDispatcher.Subscribe(GameEvent.ClosePopUp, ClosePopUp);
     }
 
     private void Update()
@@ -72,6 +73,11 @@ public class PanelCharacterModify : MonoBehaviour
     }
 
     private void OnCharacterEditorLeftClick(object args)
+    {
+        gameObject.SetActive(false);
+    }
+    
+    private void ClosePopUp(object args)
     {
         gameObject.SetActive(false);
     }

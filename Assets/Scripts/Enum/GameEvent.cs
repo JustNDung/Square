@@ -7,4 +7,7 @@
     public const string OnCharacterEditorLeftClick = "OnCharacterEditorLeftClick";
     
     public const string SaveLevelEditor = "SaveLevelEditor";
+    public const string ClosePopUp = "ClosePopup";
+    
+    public const string OnTileStepped = "OnTileStepped";
 }

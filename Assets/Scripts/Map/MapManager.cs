@@ -7,7 +7,7 @@ public class MapManager : MonoBehaviour
     private int _mapWidth = 5; // Default width of the map
     private int _mapLength = 5; // Default length of the map
     private const int _distanceUnit = 2;
-    private List<Tile> _tiles = new List<Tile>();
+    private List<TileController> _tiles = new List<TileController>();
     private MapEditor _mapEditor;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private GameObject obstaclePrefab;
@@ -83,14 +83,10 @@ public class MapManager : MonoBehaviour
                 tileData.posZ
             );
             GameObject tile = Instantiate(tilePrefab, tilePosition, Quaternion.identity, tileMapContainer);
-            if (tile.TryGetComponent<Tile>(out Tile tileComponent))
+            if (tile.TryGetComponent<TileController>(out TileController tileComponent))
             {
-                tileComponent.IsWalkable = tileData.isWalkable;
-                if (!tileData.isWalkable)
-                {
-                    GameObject obstacle = Instantiate(obstaclePrefab, tilePosition + new Vector3(0f, 0.25f, 0f), Quaternion.identity, obstacleContainer);
-                    _mapState.AddUnwalkableTile(tilePosition); // MapState is initialized in GenerateCharacter.
-                }
+                TileModel tileModel = new TileModel(tilePosition, tileData.tileType);
+                tileComponent.Apply(tileModel);
                 _tiles.Add(tileComponent);
             }
             else
@@ -100,7 +96,7 @@ public class MapManager : MonoBehaviour
         }
 
     }
-    
+
     public void GenerateCharacter(Vector3 characterPosition)
     {
         if (_mapState != null && _mapState.CanGenerateCharacterAt(characterPosition) || _mapState == null)
@@ -137,7 +133,7 @@ public class MapManager : MonoBehaviour
                 GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity, tileMapContainer);
                 tile.transform.rotation = Quaternion.Euler(0, 0, 0); 
                 
-                if (tile.TryGetComponent<Tile>(out Tile tileComponent))
+                if (tile.TryGetComponent<TileController>(out TileController tileComponent))
                 {
                     _tiles.Add(tileComponent);
                 }
@@ -167,7 +163,6 @@ public class MapManager : MonoBehaviour
             Destroy(characterBodyContainer.GetChild(i).gameObject); // Xóa các body cũ nếu có
         }
     }
-
     #region Getters and Setters
     
     public int MapWidth
@@ -184,10 +179,10 @@ public class MapManager : MonoBehaviour
     
     public int DistanceUnit => _distanceUnit; // chỉ getter vì là hằng số
     
-    public List<Tile> Tiles
+    public List<TileController> Tiles
     {
         get => _tiles;
-        set => _tiles = value ?? new List<Tile>(); // tránh gán null
+        set => _tiles = value ?? new List<TileController>(); // tránh gán null
     }
     
     public MapState MapState

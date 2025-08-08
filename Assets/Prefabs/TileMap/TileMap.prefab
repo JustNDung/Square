@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -7683953327500945721}
   - component: {fileID: 1849979529116606153}
   - component: {fileID: 8939413802166987111}
+  - component: {fileID: 1497292886105778437}
   m_Layer: 0
   m_Name: TileMap
   m_TagString: Untagged
@@ -136,3 +137,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.28, y: 1.28, z: 0.02}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1497292886105778437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5801050105336781116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 512d1f42708e4c7988458936352212af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  obstacle: {fileID: 7827798504404313476, guid: ef1bab9cacfd4904bbd176813cdd3494, type: 3}
+  teleport: {fileID: 8374218928132227125, guid: 1cf2762df7ff9da44a16e7fd50fdf3ae, type: 3}

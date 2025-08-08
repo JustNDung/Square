@@ -11,7 +11,7 @@ public class MapState
     public int DistanceUnit { get; private set; }
 
     // Danh sách tất cả tile trên map
-    public List<Tile> Tiles { get; private set; }
+    public List<TileController> Tiles { get; private set; }
 
     // Lưu các tile đã đi qua (để không đi lại)
     public HashSet<Vector3> VisitedTiles { get; private set; } = new HashSet<Vector3>();
@@ -24,12 +24,21 @@ public class MapState
     
     // Mỗi nhân vật chỉ có một vị trí
     public Dictionary<CharacterController, Vector3> PositionOfCharacter { get; private set; } = new Dictionary<CharacterController, Vector3>();
+    
+    // Lưu special tiles.
+    public Dictionary<Vector3, TileModel> SpecialTiles { get; private set; } = new Dictionary<Vector3, TileModel>();
+    
+    // Lưu 1 teleport pair.
+    public Dictionary<Vector3, Vector3> TeleportPair { get; private set; } = new Dictionary<Vector3, Vector3>();
+    
+    // Add từng cặp teleport
+    public HashSet<Vector3> PendingTeleport { get; private set; } = new HashSet<Vector3>();
 
     // Lưu thông tin khác nếu cần (ví dụ: tile đặc biệt, trạng thái thắng thua...)
     public bool IsGameOver { get; set; }
 
     // Khởi tạo
-    public MapState(int width, int length, int distanceUnit, List<Tile> tiles, CharacterController characterController)
+    public MapState(int width, int length, int distanceUnit, List<TileController> tiles, CharacterController characterController)
     {
         Width = width;
         Length = length;
@@ -201,6 +210,76 @@ public class MapState
         }
 
         return true;
+    }
+    
+    public void AddSpecialTile(TileModel tileModel)
+    {
+        if (tileModel == null || SpecialTiles.ContainsKey(tileModel.TilePos)) return;
+        SpecialTiles[tileModel.TilePos] = tileModel;
+        // UpdateTileState(tileModel);
+    }
+    
+    public void RemoveSpecialTile(Vector3 tilePos)
+    {
+        if (tilePos == null || !SpecialTiles.ContainsKey(tilePos)) return;
+        SpecialTiles.Remove(tilePos);
+        RemoveUnwalkableTile(tilePos);
+    }
+
+    public bool IsSpecialTile(Vector3 tilePos)
+    {
+        return SpecialTiles.ContainsKey(tilePos);
+    }
+
+    public bool IsTeleport(Vector3 tilePos)
+    {
+        return TeleportPair.ContainsKey(tilePos);
+    }
+
+    public void AddPendingTeleport(Vector3 teleport)
+    {
+        if (!PendingTeleport.Add(teleport))
+        {
+            return;
+        }
+        if (PendingTeleport.Count == 2)
+        {
+            var iter = PendingTeleport.GetEnumerator();
+            iter.MoveNext();
+            Vector3 a = iter.Current;
+            iter.MoveNext();
+            Vector3 b = iter.Current;
+            AddTeleportPair(a, b);
+            PendingTeleport.Clear();
+            Debug.Log($"Tạo teleport hai chiều giữa {a} <--> {b}");
+        }
+    }
+
+    private void AddTeleportPair(Vector3 teleport1, Vector3 teleport2)
+    {
+        TeleportPair[teleport1] = teleport2;
+        TeleportPair[teleport2] = teleport1;
+    }
+    
+    public void UpdateTileState(TileModel tileModel)
+    {
+        if (tileModel == null) return;
+        RemoveUnwalkableTile(tileModel.TilePos);
+        switch (tileModel.TileType)
+        {
+            case TileType.None:
+                // Xử lý tile bình thường nếu cần
+                break;
+            case TileType.Obstacle:
+                UnwalkableTiles.Add(tileModel.TilePos);
+                break;
+            case TileType.Teleport:
+                // Xử lý tile đặc biệt nếu cần
+                break;
+            default:
+                Debug.LogWarning($"Unknown tile type: {tileModel.TileType}");
+                break;
+        }
     }
     
     private Vector3 ToTilePosition(Vector3 pos)

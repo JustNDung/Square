@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using Unity.VisualScripting;
 
 public class CharacterController : MonoBehaviour
 {
@@ -87,11 +86,11 @@ public class CharacterController : MonoBehaviour
 
         if (direction == Vector3.right || direction == Vector3.left)
         {
-            FindMovePathsOnX(distanceUnit);
+            FindMovePathsOnX(distanceUnit, transform.position);
         }
         else if (direction == Vector3.forward || direction == Vector3.back)
         {
-            FindMovePathsOnZ(distanceUnit);
+            FindMovePathsOnZ(distanceUnit, transform.position);
         }
         
     }
@@ -99,10 +98,13 @@ public class CharacterController : MonoBehaviour
     private IEnumerator Move()
     {
         Vector3 current = transform.position;
-        foreach (var nextTile in _movePaths)
+        for (int i = 0; i < _movePaths.Count; i++)
         {
+            Vector3 movePath = _movePaths[i];
+            Vector3 nextTile = new Vector3(movePath.x, 0, movePath.z);
+            
             Vector3 start = current;
-            Vector3 end = nextTile;
+            Vector3 end = movePath;
 
             float distanceToTravel = Vector3.Distance(start, end);
             float distanceTraveled = 0f;
@@ -119,7 +121,7 @@ public class CharacterController : MonoBehaviour
                 transform.position = Vector3.Lerp(transform.position, targetPosition, smoothFactor);
 
                 // Spawn body part when we've moved 75% of the distance
-                if (!hasSpawnedBodyPart && moveProgress >= spawnThreshold)
+                if (!hasSpawnedBodyPart && moveProgress >= spawnThreshold && !MapManager.Instance.MapState.IsSpecialTile(start - new Vector3(0, 0.25f, 0)))
                 {
                     SpawnBodyParts(start);
                     hasSpawnedBodyPart = true;
@@ -138,9 +140,9 @@ public class CharacterController : MonoBehaviour
     
     #region Tile finding methods
 
-    private void FindMovePathsOnZ(int distanceMove)
+    private void FindMovePathsOnZ(int distanceMove, Vector3 currentPos)
     {
-        Vector3 currentPos = transform.position;
+        MapState tempMState = MapManager.Instance.MapState;
 
         // Duyệt từ vị trí hiện tại đến hết map theo trục Z
         for (float z = currentPos.z + distanceMove; z < MapManager.Instance.MapLength * MapManager.Instance.DistanceUnit && z >= 0; z += distanceMove)
@@ -148,8 +150,21 @@ public class CharacterController : MonoBehaviour
             Vector3 targetTile = new Vector3(currentPos.x, 0, z);
 
             // Nếu tile này chưa được đi qua
-            if (MapManager.Instance.MapState.CanMoveTo(targetTile))
+            if (tempMState.CanMoveTo(targetTile))
             {
+                if (tempMState.IsSpecialTile(targetTile))
+                {
+                    if (tempMState.IsTeleport(targetTile))
+                    {
+                        _movePaths.Add(targetTile + new Vector3(0, 0.25f, 0));
+                        currentPos = new Vector3(tempMState.TeleportPair[targetTile].x, characterY, tempMState.TeleportPair[targetTile].z); // teleport
+                        _movePaths.Add(currentPos);
+                        
+                        FindMovePathsOnZ(distanceMove, currentPos);
+                        break;
+                    } 
+                }
+                
                 // Đánh dấu đã đi qua
                 MapManager.Instance.MapState.VisitTile(targetTile);
                 _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
@@ -165,9 +180,9 @@ public class CharacterController : MonoBehaviour
         }
     }
     
-    private void  FindMovePathsOnX(int distanceMove)
+    private void FindMovePathsOnX(int distanceMove, Vector3 currentPos)
     {
-        Vector3 currentPos = transform.position;
+        MapState tempMState = MapManager.Instance.MapState;
         
         // Duyệt từ vị trí hiện tại đến hết map theo trục X
         for (float x = currentPos.x + distanceMove; x < MapManager.Instance.MapWidth * MapManager.Instance.DistanceUnit && x >= 0; x += distanceMove)
@@ -175,12 +190,23 @@ public class CharacterController : MonoBehaviour
             Vector3 targetTile = new Vector3(x, 0, currentPos.z);
 
             // Nếu tile này chưa được đi qua
-            if (MapManager.Instance.MapState.CanMoveTo(targetTile))
+            if (tempMState.CanMoveTo(targetTile))
             {
-                // Đánh dấu đã đi qua
+                if (tempMState.IsSpecialTile(targetTile))
+                {
+                    if (tempMState.IsTeleport(targetTile))
+                    {
+                        _movePaths.Add(targetTile + new Vector3(0, 0.25f, 0));
+                        currentPos = new Vector3(tempMState.TeleportPair[targetTile].x, characterY, tempMState.TeleportPair[targetTile].z); // teleport
+                        _movePaths.Add(currentPos);
+                        
+                        FindMovePathsOnX(distanceMove, currentPos);
+                        break;
+                    } 
+                }
+                
                 MapManager.Instance.MapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
                 _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
-                
                 currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu các tile đi qua trong 1 lần di chuyển
             }
@@ -191,6 +217,18 @@ public class CharacterController : MonoBehaviour
             
         }
     }
+
+    private void UpdateMovePathsWithSpecialTile(TileType tileType, Vector3 direction)
+    {
+        switch (tileType)
+        {
+            case TileType.Teleport:
+                break;
+            default:
+                break;
+        }
+    }
+    
     #endregion
     
     // Chuyển đồi hướng vuốt chuột thành hướng di chuyển

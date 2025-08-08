@@ -29,8 +29,12 @@ public class EditorInteractionHandler : MonoBehaviour
                 if (_currentInteractable != interactable)
                 {
                     ResetOutline();
+                    if (_currentInteractable != null)
+                    {
+                        _currentInteractable.ClosePopUp();
+                    }
                     _currentInteractable = interactable;
-                    interactable.OnEditorRightClick();
+                    _currentInteractable.OnEditorRightClick();
                     
                     _currentOutline = hit.collider.GetComponent<Outline>();
                     if (_currentOutline != null)
@@ -63,6 +67,5 @@ public class EditorInteractionHandler : MonoBehaviour
             _currentOutline = null;
         }
         
-        _currentInteractable = null;
     }
 }
