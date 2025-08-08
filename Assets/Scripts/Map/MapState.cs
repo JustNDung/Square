@@ -33,6 +33,9 @@ public class MapState
     
     // Add từng cặp teleport
     public HashSet<Vector3> PendingTeleport { get; private set; } = new HashSet<Vector3>();
+    
+    // Lưu các tile có direction 
+    public Dictionary<Vector3, int> DirectionTile { get; private set; } = new Dictionary<Vector3, int>();
 
     // Lưu thông tin khác nếu cần (ví dụ: tile đặc biệt, trạng thái thắng thua...)
     public bool IsGameOver { get; set; }
@@ -60,29 +63,29 @@ public class MapState
     public void VisitTile(Vector3 pos)
     {
         VisitedTiles.Add(pos);
-        UnwalkableTiles.Add(pos);
+        AddUnwalkableTile(pos);
     }
         
-    public void UnvisitTile(Vector3 pos)
+    private void UnvisitTile(Vector3 pos)
     {
         VisitedTiles.Remove(pos);
-        UnwalkableTiles.Remove(pos);
+        RemoveUnwalkableTile(pos);
     }
     
-    public bool IsVisited(Vector3 pos)
-    {
-        return VisitedTiles.Contains(pos);
-    }
+    // public bool IsVisited(Vector3 pos)
+    // {
+    //     return VisitedTiles.Contains(pos);
+    // }
 
     // Kiểm tra tọa độ trong map
-    public bool IsInBounds(Vector3 pos)
+    private bool IsInBounds(Vector3 pos)
     {
         return pos.x >= 0 && pos.x <= (Width - 1) * DistanceUnit 
                           && pos.z >= 0 && pos.z <= (Length - 1) * DistanceUnit;
     }
     
     // Đánh dấu một ô là không thể đi qua
-    public void AddUnwalkableTile(Vector3 pos)
+    private void AddUnwalkableTile(Vector3 pos)
     {
         if (!UnwalkableTiles.Contains(pos))
         {
@@ -91,7 +94,7 @@ public class MapState
     }
 
     // Bỏ đánh dấu một ô là không thể đi
-    public void RemoveUnwalkableTile(Vector3 pos)
+    private void RemoveUnwalkableTile(Vector3 pos)
     {
         if (UnwalkableTiles.Contains(pos))
         {
@@ -100,7 +103,7 @@ public class MapState
     }
 
     // Kiểm tra ô có phải là unwalkable không
-    public bool IsUnwalkable(Vector3 pos)
+    private bool IsUnwalkable(Vector3 pos)
     {
         Vector3 tilePos = ToTilePosition(pos); // Chuyển đổi sang tọa độ ô (y = 0)
 
@@ -193,7 +196,7 @@ public class MapState
         }
     }
     
-    public bool HasCharacterAt(Vector3 pos)
+    private bool HasCharacterAt(Vector3 pos)
     {
         if (CharacterAtPosition.ContainsKey(pos))
         {
@@ -204,7 +207,7 @@ public class MapState
     
     public bool CanGenerateCharacterAt(Vector3 pos)
     {
-        if (!IsInBounds(pos) || HasCharacterAt(pos) || IsUnwalkable(pos))
+        if (!IsInBounds(pos) || HasCharacterAt(pos) || IsUnwalkable(pos) || IsSpecialTile(pos))
         {
             return false;
         }
@@ -214,29 +217,29 @@ public class MapState
     
     public void AddSpecialTile(TileModel tileModel)
     {
-        if (tileModel == null || SpecialTiles.ContainsKey(tileModel.TilePos)) return;
         SpecialTiles[tileModel.TilePos] = tileModel;
-        // UpdateTileState(tileModel);
+        UpdateTileState(tileModel);
     }
     
-    public void RemoveSpecialTile(Vector3 tilePos)
+    private void RemoveSpecialTile(Vector3 tilePos)
     {
-        if (tilePos == null || !SpecialTiles.ContainsKey(tilePos)) return;
         SpecialTiles.Remove(tilePos);
-        RemoveUnwalkableTile(tilePos);
+        
+        RemoveUnwalkableTile(tilePos); // Obstacle
+        RemoveTeleportPair(tilePos); // Teleport
+        RemoveDirectionPair(tilePos); // Direction
     }
 
     public bool IsSpecialTile(Vector3 tilePos)
     {
+        if (SpecialTiles.ContainsKey(tilePos))
+        {
+            UIHelpers.Instance.ShowPopUpUI($"Vị trí {tilePos} có special object!");
+        }
         return SpecialTiles.ContainsKey(tilePos);
     }
 
-    public bool IsTeleport(Vector3 tilePos)
-    {
-        return TeleportPair.ContainsKey(tilePos);
-    }
-
-    public void AddPendingTeleport(Vector3 teleport)
+    private void AddPendingTeleport(Vector3 teleport)
     {
         if (!PendingTeleport.Add(teleport))
         {
@@ -251,30 +254,60 @@ public class MapState
             Vector3 b = iter.Current;
             AddTeleportPair(a, b);
             PendingTeleport.Clear();
-            Debug.Log($"Tạo teleport hai chiều giữa {a} <--> {b}");
+            UIHelpers.Instance.ShowPopUpUI($"Tạo teleport hai chiều giữa {a} <--> {b}");
         }
     }
+    
+    private void RemoveTeleportPair(Vector3 teleport)
+    {
+        if (!TeleportPair.TryGetValue(teleport, out Vector3 other))
+        {
+            // Không tìm thấy teleport để xóa
+            UIHelpers.Instance.ShowPopUpUI($"Không tìm thấy teleport tại {teleport}");
+            return;
+        }
 
+        // Xóa cả hai chiều
+        TeleportPair.Remove(teleport);
+        TeleportPair.Remove(other);
+
+        UIHelpers.Instance.ShowPopUpUI($"Đã xóa teleport hai chiều giữa {teleport} <--> {other}");
+    }
+    
     private void AddTeleportPair(Vector3 teleport1, Vector3 teleport2)
     {
         TeleportPair[teleport1] = teleport2;
         TeleportPair[teleport2] = teleport1;
     }
+
+    private void AddDirectionPair(Vector3 tilePos)
+    {
+        DirectionTile[tilePos] = 2;
+    }
+
+    private void RemoveDirectionPair(Vector3 tilePos)
+    {
+        DirectionTile.Remove(tilePos);
+    }
     
-    public void UpdateTileState(TileModel tileModel)
+    private void UpdateTileState(TileModel tileModel)
     {
         if (tileModel == null) return;
-        RemoveUnwalkableTile(tileModel.TilePos);
+        Vector3 tilePos = tileModel.TilePos;
+        
         switch (tileModel.TileType)
         {
             case TileType.None:
-                // Xử lý tile bình thường nếu cần
+                RemoveSpecialTile(tilePos);
                 break;
             case TileType.Obstacle:
-                UnwalkableTiles.Add(tileModel.TilePos);
+                AddUnwalkableTile(tilePos);
                 break;
             case TileType.Teleport:
-                // Xử lý tile đặc biệt nếu cần
+                AddPendingTeleport(tilePos);
+                break;
+            case TileType.Up: case TileType.Down: case TileType.Left: case TileType.Right:
+                AddDirectionPair(tilePos);
                 break;
             default:
                 Debug.LogWarning($"Unknown tile type: {tileModel.TileType}");

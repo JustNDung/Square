@@ -12,6 +12,9 @@ public class TileView : MonoBehaviour
     [SerializeField] private GameObject right;
     [SerializeField] private GameObject up;
 
+    [SerializeField] private GameObject horizontal;
+    [SerializeField] private GameObject vertical;
+
     public void UpdateView(TileType tileType)
     {
         CreateEffectsContainer();
@@ -34,6 +37,12 @@ public class TileView : MonoBehaviour
                 break;
             case TileType.Up:
                 CreateUp();
+                break;
+            case TileType.Horizontal:
+                CreateHorizontal();
+                break;
+            case TileType.Vertical:
+                CreateVertical();
                 break;
             default:
                 if (_effectsContainer != null)
@@ -78,6 +87,16 @@ public class TileView : MonoBehaviour
     {
         GameObject tele = Instantiate(teleport, _effectsContainer);
         tele.transform.localPosition = new Vector3(0, 1f, 0);
+    }
+
+    private void CreateHorizontal()
+    {
+        
+    }
+
+    private void CreateVertical()
+    {
+        
     }
 
     private void CreateEffectsContainer()

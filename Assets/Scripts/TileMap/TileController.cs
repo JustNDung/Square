@@ -17,18 +17,7 @@ public class TileController : MonoBehaviour
         _model = model;
         _view.UpdateView(model.TileType);
         transform.position = model.TilePos;
-        
-        MapManager.Instance.MapState.UpdateTileState(_model);
-        
-        if (model.TileType != TileType.None)
-        {
-            MapManager.Instance.MapState.AddSpecialTile(_model);
-        }
-
-        if (model.TileType == TileType.Teleport)
-        {
-            MapManager.Instance.MapState.AddPendingTeleport(model.TilePos);
-        }
+        MapManager.Instance.MapState.AddSpecialTile(_model);
     }
     
     #region Getters and Setters
