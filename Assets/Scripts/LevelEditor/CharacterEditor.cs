@@ -11,6 +11,7 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     public void Apply(CharacterEditorData characterEditorData)
     {
         Vector3 newPos = characterEditorData.initialPosition;
+        _characterController.CharacterType = characterEditorData.type;
         MapManager.Instance.MapState.ModifyCharacterPosition(_characterController, newPos);
     }
     
@@ -19,7 +20,8 @@ public class CharacterEditor : MonoBehaviour, IEditorInteractable, IDataProvider
         return new CharacterEditorData
         {
             initialPosition = _characterController.InitialPosition,
-            currentPosition = _characterController.transform.position
+            currentPosition = _characterController.transform.position,
+            type = _characterController.CharacterType
         };
     }
     
@@ -58,4 +60,5 @@ public class CharacterEditorData
 {
     public Vector3 initialPosition;
     public Vector3 currentPosition;
+    public CharacterType type;
 }

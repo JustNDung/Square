@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.TextCore.Text;
 
 public class CharacterController : MonoBehaviour
 {
+    private CharacterType _characterType = CharacterType.None;
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 8f; // Tăng tốc độ di chuyển
     [SerializeField] private float smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
@@ -72,6 +74,11 @@ public class CharacterController : MonoBehaviour
     {
         if (direction == Vector3.zero) return;
         int distanceUnit = MapManager.Instance.DistanceUnit; // Khoảng cách di chuyển theo đơn vị của bản đồ
+
+        if (_characterType == CharacterType.Confused)
+        {
+            distanceUnit = -distanceUnit;
+        }
 
         if (direction == Vector3.right || direction == Vector3.forward)
         {
@@ -360,5 +367,11 @@ public class CharacterController : MonoBehaviour
     {
         get => _visitedTiles;
         set => _visitedTiles = value; // Cần thiết nếu muốn thay đổi danh sách đã đi qua
+    }
+
+    public CharacterType CharacterType
+    {
+        get => _characterType;
+        set => _characterType = value;
     }
 }
