@@ -241,8 +241,12 @@ public class CharacterController : MonoBehaviour
                 
                 break;
             case TileType.Up:
-                
-                if (direction == Vector3.down) return;
+
+                if (direction == Vector3.down)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
                 direction = Vector3.forward;
                 distanceMove = 2;
                 
@@ -251,8 +255,12 @@ public class CharacterController : MonoBehaviour
                 
                 break;
             case TileType.Down:
-                
-                if (direction == Vector3.up) return;
+
+                if (direction == Vector3.up)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
                 direction = Vector3.back;
                 distanceMove = -2;
                 
@@ -261,8 +269,12 @@ public class CharacterController : MonoBehaviour
                 
                 break;
             case TileType.Right:
-                
-                if (direction == Vector3.left) return;
+
+                if (direction == Vector3.left)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
                 direction = Vector3.right;
                 distanceMove = 2;
                 
@@ -271,8 +283,12 @@ public class CharacterController : MonoBehaviour
                 
                 break;
             case TileType.Left:
-                
-                if (direction == Vector3.right) return;
+
+                if (direction == Vector3.right)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
                 direction = Vector3.left;
                 distanceMove = -2;
                 
