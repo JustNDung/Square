@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void LoadGame()
+    private void LoadGame()
     {
         
     }
