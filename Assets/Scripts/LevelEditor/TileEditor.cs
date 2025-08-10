@@ -29,7 +29,7 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     public void Apply(TileEditorData tileEditorData)
     {
         TileModel tileModel = new TileModel(new Vector3(tileEditorData.posX, tileEditorData.posY, tileEditorData.posZ), 
-            tileEditorData.tileType);
+            tileEditorData.type);
         _tileController.Apply(tileModel);
     }
     
@@ -42,7 +42,7 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     {
         return new TileEditorData
         {
-            tileType = _tileController.Model.TileType,
+            type = _tileController.Model.Type,
             posX = _tileController.transform.position.x,
             posY = _tileController.transform.position.y,
             posZ = _tileController.transform.position.z
@@ -59,7 +59,7 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 [System.Serializable]
 public class TileEditorData
 {
-    public TileType tileType;
+    public TileType type;
     public float posX;
     public float posY;
     public float posZ;

@@ -295,7 +295,7 @@ public class MapState
         if (tileModel == null) return;
         Vector3 tilePos = tileModel.TilePos;
         
-        switch (tileModel.TileType)
+        switch (tileModel.Type)
         {
             case TileType.None:
                 RemoveSpecialTile(tilePos);
@@ -310,7 +310,7 @@ public class MapState
                 AddDirectionPair(tilePos);
                 break;
             default:
-                Debug.LogWarning($"Unknown tile type: {tileModel.TileType}");
+                Debug.LogWarning($"Unknown tile type: {tileModel.Type}");
                 break;
         }
     }

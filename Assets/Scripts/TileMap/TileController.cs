@@ -15,7 +15,7 @@ public class TileController : MonoBehaviour
     public void Apply(TileModel model)
     {
         _model = model;
-        _view.UpdateView(model.TileType);
+        _view.UpdateView(model.Type);
         transform.position = model.TilePos;
         MapManager.Instance.MapState.AddSpecialTile(_model);
     }

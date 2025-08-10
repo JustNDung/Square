@@ -12,8 +12,8 @@ public class TileView : MonoBehaviour
     [SerializeField] private GameObject right;
     [SerializeField] private GameObject up;
 
-    [SerializeField] private GameObject horizontal;
-    [SerializeField] private GameObject vertical;
+    // [SerializeField] private GameObject horizontal;
+    // [SerializeField] private GameObject vertical;
 
     public void UpdateView(TileType tileType)
     {

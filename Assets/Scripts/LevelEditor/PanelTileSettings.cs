@@ -49,7 +49,7 @@ public class PanelTileSettings : MonoBehaviour
     {
         if (_targetTileEditor == null || _currentTileData == null) return;
 
-        _currentTileData.tileType = (TileType)index;
+        _currentTileData.type = (TileType)index;
         _targetTileEditor.Apply(_currentTileData);
     }
 
@@ -61,7 +61,7 @@ public class PanelTileSettings : MonoBehaviour
             _targetTileEditor = targetTileEditor;
             _currentTileData = _targetTileEditor.GetData();
             
-            tileTypeDropdown.value = (int)_currentTileData.tileType;
+            tileTypeDropdown.value = (int)_currentTileData.type;
             tilePosX.text = _currentTileData.posX.ToString("F2");
             tilePosY.text = _currentTileData.posY.ToString("F2");
             tilePosZ.text = _currentTileData.posZ.ToString("F2");

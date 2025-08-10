@@ -151,7 +151,7 @@ public class CharacterController : MonoBehaviour
         MapState tempMState = MapManager.Instance.MapState;
         Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
         
-        if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].TileType == TileType.Horizontal)
+        if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Horizontal)
         {
             return;
         }
@@ -190,7 +190,7 @@ public class CharacterController : MonoBehaviour
         MapState tempMState = MapManager.Instance.MapState;
         Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
 
-        if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].TileType == TileType.Vertical)
+        if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Vertical)
         {
             return;
         }
@@ -227,7 +227,7 @@ public class CharacterController : MonoBehaviour
     private void UpdateMovePathsWithSpecialTile(Vector3 tilePos, int distanceMove, Vector3 currentPos, Vector3 direction)
     {
         MapState tempMState = MapManager.Instance.MapState;
-        switch (MapManager.Instance.MapState.SpecialTiles[tilePos].TileType)
+        switch (MapManager.Instance.MapState.SpecialTiles[tilePos].Type)
         {
             case TileType.Teleport:
                 

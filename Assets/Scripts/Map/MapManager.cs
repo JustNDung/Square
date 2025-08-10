@@ -85,7 +85,7 @@ public class MapManager : MonoBehaviour
             GameObject tile = Instantiate(tilePrefab, tilePosition, Quaternion.identity, tileMapContainer);
             if (tile.TryGetComponent<TileController>(out TileController tileComponent))
             {
-                TileModel tileModel = new TileModel(tilePosition, tileData.tileType);
+                TileModel tileModel = new TileModel(tilePosition, tileData.type);
                 tileComponent.Apply(tileModel);
                 _tiles.Add(tileComponent);
             }

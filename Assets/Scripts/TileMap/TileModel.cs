@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 public class TileModel
 {
-    private TileType _tileType = TileType.None;
+    private TileType _type = TileType.None;
     private Vector3 _tilePos;
     
-    public TileModel(Vector3 tilePos, TileType tileType)
+    public TileModel(Vector3 tilePos, TileType type)
     {
         _tilePos = tilePos;
-        _tileType = tileType;
+        _type = type;
     }
     
     public Vector3 TilePos
@@ -16,10 +16,10 @@ public class TileModel
         set { _tilePos = value; }
     }
     
-    public TileType TileType
+    public TileType Type
     {
-        get { return _tileType; }
-        set { _tileType = value; }
+        get { return _type; }
+        set { _type = value; }
     }
     
 }
