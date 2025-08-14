@@ -20,6 +20,9 @@ public class MapManager : MonoBehaviour
     [Header("Character Settings")]
     [SerializeField] private GameObject characterPrefab;
     
+    [Header("Camera Settings")]
+    [SerializeField] private CameraController mainCamera;
+    
     public static MapManager Instance { get; private set; }
 
     private MapState _mapState;
@@ -48,7 +51,8 @@ public class MapManager : MonoBehaviour
     {
         CreateBasicMapForEditor();
         _mapState = null;
-        GenerateCharacter(defaultCharacterPosition);        
+        GenerateCharacter(defaultCharacterPosition);    
+        mainCamera.FitCameraToMap();
     }
 
     public void GenerateMapFromData(GameLevelData data)
@@ -94,6 +98,8 @@ public class MapManager : MonoBehaviour
                 Debug.LogWarning("Tile prefab does not have Tile component attached.");
             }
         }
+        
+        mainCamera.FitCameraToMap();
 
     }
 
