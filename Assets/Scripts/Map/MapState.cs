@@ -37,9 +37,6 @@ public class MapState
     // Lưu các tile có direction 
     public Dictionary<Vector3, int> DirectionTile { get; private set; } = new Dictionary<Vector3, int>();
 
-    // Lưu thông tin khác nếu cần (ví dụ: tile đặc biệt, trạng thái thắng thua...)
-    public bool IsGameOver { get; set; }
-
     // Khởi tạo
     public MapState(int width, int length, int distanceUnit, List<TileController> tiles, CharacterController characterController)
     {
@@ -51,6 +48,11 @@ public class MapState
 
         Vector3 tileVisited = ToTilePosition(characterController.transform.position);
         VisitTile(tileVisited); // Đánh dấu ô đã đi qua khi khởi tạo
+    }
+    
+    public bool IsWin()
+    {
+        return VisitedTiles.Count + SpecialTiles.Count == Width * Length;
     }
 
     // Kiểm tra ô có thể đi được không
@@ -66,7 +68,7 @@ public class MapState
         AddUnwalkableTile(pos);
     }
         
-    private void UnvisitTile(Vector3 pos)
+    public void UnvisitTile(Vector3 pos)
     {
         VisitedTiles.Remove(pos);
         RemoveUnwalkableTile(pos);
@@ -141,6 +143,7 @@ public class MapState
         PositionOfCharacter[characterController] = pos; 
         
         VisitTile(tilePos); // Đánh dấu ô đã đi qua
+        MapManager.Instance.FindPathsToWin.AddCharacter(characterController);
     }
     
     public void ModifyCharacterPosition(CharacterController characterController, Vector3 newPos)

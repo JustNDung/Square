@@ -16,6 +16,7 @@ public class MapManager : MonoBehaviour
     [SerializeField] private Transform characterContainer;
     [SerializeField] private Transform characterBodyContainer;
     [SerializeField] private Vector3 defaultCharacterPosition = new Vector3(0, 0.25f, 0);
+    private FindPathsToWin _findPathsToWin;
     
     [Header("Character Settings")]
     [SerializeField] private GameObject characterPrefab;
@@ -49,6 +50,7 @@ public class MapManager : MonoBehaviour
     
     public void GenerateBasicMapForEditor()
     {
+        _findPathsToWin = new FindPathsToWin(); 
         CreateBasicMapForEditor();
         _mapState = null;
         GenerateCharacter(defaultCharacterPosition);    
@@ -59,6 +61,7 @@ public class MapManager : MonoBehaviour
     {
         ClearMap();
         _mapState = null;
+        _findPathsToWin = new FindPathsToWin();
         
         // For map
         MapData mapData = data.map;
@@ -231,6 +234,12 @@ public class MapManager : MonoBehaviour
     {
         get => _mapEditor;
         set => _mapEditor = value;
+    }
+    
+    public FindPathsToWin FindPathsToWin
+    {
+        get => _findPathsToWin;
+        set => _findPathsToWin = value;
     }
     
     #endregion
