@@ -36,9 +36,8 @@ public class FindPathsToWin
 
         foreach (var character in _characters)
         {
-            _startPosPerState[character].Push(character.CurrentPosByCalculate);
+            _startPosPerState[character].Push(character.CurrentPosByCalculate); 
         }
-
         foreach (var direction in _directions)
         {
             bool isStateChanged = false;
@@ -49,17 +48,24 @@ public class FindPathsToWin
                 if (character.MovePaths.Count > 0)
                 {
                     isStateChanged = true;
-                    _currentPaths[character].Add(new List<Vector3>(character.MovePaths)); 
                 }
                 
             }
             
             if (isStateChanged)
             {
+                foreach (var character in _characters)
+                {
+                    _currentPaths[character].Add(new List<Vector3>(character.MovePaths)); 
+                }
+                
                 FindAllMovePathToWin();
+                
                 foreach (var character in _characters)
                 {
                     int numberOfMovePaths = _currentPaths[character].Count;
+                    
+                    if (numberOfMovePaths == 0) continue;
                     
                     for (int i = 0; i < _currentPaths[character][numberOfMovePaths - 1].Count; i++)
                     {
@@ -77,7 +83,6 @@ public class FindPathsToWin
                     {
                         character.CurrentPosByCalculate = _startPosPerState[character].Peek();
                     }
-                    
                 }
             }
         }
