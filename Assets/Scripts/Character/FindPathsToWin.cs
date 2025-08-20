@@ -8,6 +8,7 @@ public class FindPathsToWin
     private Dictionary<CharacterController, List<List<Vector3>>> _currentPaths = new Dictionary<CharacterController, List<List<Vector3>>>();
     private Dictionary<CharacterController, List<Vector3>> _winPaths = new Dictionary<CharacterController, List<Vector3>>();
     private Dictionary<CharacterController, Stack<Vector3>> _startPosPerState = new Dictionary<CharacterController, Stack<Vector3>>();
+    private HashSet<int> _visitedStates = new HashSet<int>();
     private bool _isWin = false;
 
     private Vector3[] _directions = new Vector3[]
@@ -23,6 +24,10 @@ public class FindPathsToWin
     public void FindAllMovePathToWin()
     {
         if (_isWin) return;
+        
+        int stateHash = GetStateHash();
+        if (_visitedStates.Contains(stateHash)) return;
+        _visitedStates.Add(stateHash);
 
         if (MapManager.Instance.MapState.IsWin())
         {
@@ -99,6 +104,25 @@ public class FindPathsToWin
         }
     }
 
+    private int GetStateHash()
+    {
+        unchecked
+        {
+             int hash = 17;
+             
+             foreach (var character in _characters) {
+                 hash = hash * 31 + character.CurrentPosByCalculate.GetHashCode();
+             }
+
+             foreach (var tile in MapManager.Instance.MapState.VisitedTiles)
+             {
+                 hash = hash * 31 + tile.GetHashCode();
+             }
+             
+             return hash;
+            
+        }
+    }
     public void AddCharacter(CharacterController character)
     {
         _characters.Add(character);

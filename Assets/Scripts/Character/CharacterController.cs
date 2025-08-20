@@ -95,10 +95,12 @@ public class CharacterController : MonoBehaviour
 
         if (direction == Vector3.right || direction == Vector3.left)
         {
+            _initialPosPerMovePath = currentPos;
             FindMovePathsOnX(distanceUnit, currentPos, direction);
         }
         else if (direction == Vector3.forward || direction == Vector3.back)
         {
+            _initialPosPerMovePath = currentPos;
             FindMovePathsOnZ(distanceUnit, currentPos, direction);
         }
         
@@ -160,7 +162,6 @@ public class CharacterController : MonoBehaviour
     {
         MapState tempMState = MapManager.Instance.MapState;
         Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
-        _initialPosPerMovePath = currentPos;
         
         if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Horizontal)
         {
@@ -191,6 +192,7 @@ public class CharacterController : MonoBehaviour
             }
             else
             {
+                _currentPosByCalculate = currentPos; // Lưu vị trí cuối cùng trong 1 lần di chuyển khi tính toán hướng đi.
                 break; // Dừng lại khi tìm thấy tile đã đi qua
             }
             
@@ -201,7 +203,6 @@ public class CharacterController : MonoBehaviour
     {
         MapState tempMState = MapManager.Instance.MapState;
         Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
-        _initialPosPerMovePath = currentPos;
 
         if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Vertical)
         {
@@ -231,6 +232,7 @@ public class CharacterController : MonoBehaviour
             }
             else
             {
+                _currentPosByCalculate = currentPos;
                 break; // Dừng lại khi tìm thấy tile đã đi qua
             }
             
