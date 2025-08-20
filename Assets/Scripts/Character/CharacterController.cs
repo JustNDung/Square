@@ -1,34 +1,42 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using Unity.VisualScripting;
+using UnityEngine.TextCore.Text;
 
 public class CharacterController : MonoBehaviour
 {
+    private CharacterType _characterType = CharacterType.None;
     [Header("Movement Settings")]
-    [SerializeField] private int _distanceMove = 2; // Khoảng cách di chuyển mỗi lần
-    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 8f; // Tăng tốc độ di chuyển
+    [SerializeField] private float smoothFactor = 0.8f; // Hệ số làm mượt chuyển động
+    [SerializeField] private float characterY = 0.25f;
+    private Vector3 _initialPosition; // Vị trí ban đầu của nhân vật
+    private Vector3 _currentPosByCalculate;
+    private Vector3 _initialPosPerMovePath;
     private Vector3 _mouseStart = Vector3.zero;
     private Vector3 _mouseEnd = Vector3.zero;
     private bool _isMouseSwiping = false;
     private Coroutine _moveCoroutine;
     private List<Vector3> _movePaths = new List<Vector3>(); // Lưu vị trí các tile đi qua trong 1 lần di chuyển
+    private List<Vector3> _visitedTiles = new List<Vector3>(); // Lưu các tile đã đi qua của nhân vật
     
     [Header("Body Parts Settings")]
-    [SerializeField] private GameObject _bodyPartPrefab; // Prefab cho các phần thân
-    [SerializeField] private string _bodyContainerName = "CharacterBody"; // Tên của container chứa các phần thân
-    private GameObject _bodyPartsContainer; // Container chứa các phần thân
-    
-    private MapState _mapState;
+    [SerializeField] private GameObject bodyPartPrefab; // Prefab cho các phần thân
+    [SerializeField] [Range(0f, 1f)] private float spawnThreshold = 0.75f; // Ngưỡng % di chuyển để spawn body part
+    private GameObject _characterBodyContainer; // Container chứa các phần thân của nhân vật
 
-    private void Start()
+    private void Awake()
     {
-        _bodyPartsContainer = new GameObject(_bodyContainerName);
-        _mapState = MapManager.Instance.MapState; // Lấy MapState từ MapManager
+        _characterBodyContainer = new GameObject("BodyPartsOf" + gameObject.name);
+        _characterBodyContainer.transform.SetParent(MapManager.Instance.CharacterBodyContainer);
+        
+        _initialPosition = transform.position;
+        _currentPosByCalculate = transform.position;
+        _visitedTiles.Add(transform.position - new Vector3(0, 0.25f, 0)); // Lưu vị trí ban đầu vào danh sách đã đi qua
     }
-
+    
     private void Update()
-    {
+    { 
         HandleSwipe();
     }
     
@@ -52,11 +60,11 @@ public class CharacterController : MonoBehaviour
 
             if (direction != Vector3.zero && _moveCoroutine == null)
             {
-                FindMovePaths(direction);
+                FindMovePaths(direction, transform.position);
                 
                 if (_movePaths.Count > 0)
                 {
-                    _moveCoroutine = StartCoroutine(Move());
+                    MoveCharacter(_movePaths);
                 }
             }
         }
@@ -64,115 +72,280 @@ public class CharacterController : MonoBehaviour
     #endregion
     
     #region Find move paths and move character
-
-    private void FindMovePaths(Vector3 direction)
+    public void FindMovePaths(Vector3 direction, Vector3 currentPos)
     {
         if (direction == Vector3.zero) return;
-        int distanceMove = _distanceMove;
+        int distanceUnit = MapManager.Instance.DistanceUnit; // Khoảng cách di chuyển theo đơn vị của bản đồ
+
+        if (_characterType == CharacterType.Confused)
+        {
+            distanceUnit = -distanceUnit;
+        }
 
         if (direction == Vector3.right || direction == Vector3.forward)
         {
-            distanceMove *= 1; // Chiều dương
+            distanceUnit *= 1; // Chiều dương
         }
         else if (direction == Vector3.left || direction == Vector3.back)
         {
-            distanceMove *= -1; // Chiều âm
+            distanceUnit *= -1; // Chiều âm
         }
         
         _movePaths.Clear();
 
         if (direction == Vector3.right || direction == Vector3.left)
         {
-            FindMovePathsOnX(distanceMove);
+            _initialPosPerMovePath = currentPos;
+            FindMovePathsOnX(distanceUnit, currentPos, direction);
         }
         else if (direction == Vector3.forward || direction == Vector3.back)
         {
-            FindMovePathsOnZ(distanceMove);
+            _initialPosPerMovePath = currentPos;
+            FindMovePathsOnZ(distanceUnit, currentPos, direction);
         }
         
     }
 
-    private IEnumerator Move()
+    public void MoveCharacter(List<Vector3> movePaths)
+    {
+        if (_moveCoroutine == null)
+        {
+            _moveCoroutine = StartCoroutine(Move(movePaths));
+        } 
+    }
+
+    private IEnumerator Move(List<Vector3> movePaths)
     {
         Vector3 current = transform.position;
-        foreach (var nextTile in _movePaths)
+        for (int i = 0; i < movePaths.Count; i++)
         {
+            Vector3 movePath = movePaths[i];
+            
             Vector3 start = current;
-            Vector3 end = nextTile;
+            Vector3 end = movePath;
 
-            // Move from start to end
-            while (Vector3.Distance(transform.position, end) > 0.01f)
+            float distanceToTravel = Vector3.Distance(start, end);
+            float distanceTraveled = 0f;
+            bool hasSpawnedBodyPart = false;
+            float spawnThreshold = this.spawnThreshold; // Use the configurable threshold
+
+            while (distanceTraveled < distanceToTravel)
             {
-                transform.position = Vector3.MoveTowards(transform.position, end, _moveSpeed * Time.deltaTime);
+                float step = moveSpeed * Time.deltaTime;
+                distanceTraveled += step;
+                float moveProgress = distanceTraveled / distanceToTravel;
+                
+                Vector3 targetPosition = Vector3.Lerp(start, end, moveProgress);
+                transform.position = Vector3.Lerp(transform.position, targetPosition, smoothFactor);
+
+                // Spawn body part when we've moved 75% of the distance
+                if (!hasSpawnedBodyPart && moveProgress >= spawnThreshold && !MapManager.Instance.MapState.IsSpecialTile(start - new Vector3(0, 0.25f, 0)))
+                {
+                    SpawnBodyParts(start);
+                    hasSpawnedBodyPart = true;
+                }
+
                 yield return null;
             }
 
             transform.position = end;
-            
-            // TODO: Spawn body part một cách mượt mà hơn
-            
-            // Spawn body part tại tile vừa rời
-            SpawnBodyParts(start);
-
             current = end;
         }
         
         _moveCoroutine = null;
-
     }
     #endregion
     
     #region Tile finding methods
 
-    private void FindMovePathsOnZ(int distanceMove)
+    private void FindMovePathsOnZ(int distanceMove, Vector3 currentPos, Vector3 direction)
     {
-        Vector3 currentPos = transform.position;
+        MapState tempMState = MapManager.Instance.MapState;
+        Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
+        
+        if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Horizontal)
+        {
+            return;
+        }
 
         // Duyệt từ vị trí hiện tại đến hết map theo trục Z
-        for (float z = currentPos.z + distanceMove; z < _mapState.Length * _mapState.DistanceUnit && z >= 0; z += distanceMove)
+        for (float z = currentPos.z + distanceMove; z < MapManager.Instance.MapLength * MapManager.Instance.DistanceUnit && z >= 0; z += distanceMove)
         {
             Vector3 targetTile = new Vector3(currentPos.x, 0, z);
 
             // Nếu tile này chưa được đi qua
-            if (_mapState.CanMoveTo(targetTile))
+            if (tempMState.CanMoveTo(targetTile))
             {
+                if (tempMState.IsSpecialTile(targetTile))
+                {
+                    currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
+                    UpdateMovePathsWithSpecialTile(targetTile, distanceMove, currentPos, direction);
+                    break;
+                }
+                
                 // Đánh dấu đã đi qua
-                _mapState.VisitTile(targetTile);
-                currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
-                _movePaths.Add(currentPos); // Lưu tile vừa rời khoi
+                MapManager.Instance.MapState.VisitTile(targetTile);
+                _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
+                currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
+                _movePaths.Add(currentPos); // Lưu tile đi qua trong 1 lần di chuyển
+                _currentPosByCalculate = currentPos; // Lưu vị trí cuối cùng trong 1 lần di chuyển khi tính toán hướng đi.
             }
             else
             {
+                _currentPosByCalculate = currentPos; // Lưu vị trí cuối cùng trong 1 lần di chuyển khi tính toán hướng đi.
                 break; // Dừng lại khi tìm thấy tile đã đi qua
             }
             
         }
     }
     
-    private void FindMovePathsOnX(int distanceMove)
+    private void FindMovePathsOnX(int distanceMove, Vector3 currentPos, Vector3 direction)
     {
-        Vector3 currentPos = transform.position;
+        MapState tempMState = MapManager.Instance.MapState;
+        Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
 
-        // Duyệt từ vị trí hiện tại đến hết map theo trục Z
-        for (float x = currentPos.x + distanceMove; x < _mapState.Width * _mapState.DistanceUnit && x >= 0; x += distanceMove)
+        if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Vertical)
+        {
+            return;
+        }
+        
+        // Duyệt từ vị trí hiện tại đến hết map theo trục X
+        for (float x = currentPos.x + distanceMove; x < MapManager.Instance.MapWidth * MapManager.Instance.DistanceUnit && x >= 0; x += distanceMove)
         {
             Vector3 targetTile = new Vector3(x, 0, currentPos.z);
 
             // Nếu tile này chưa được đi qua
-            if (_mapState.CanMoveTo(targetTile))
+            if (tempMState.CanMoveTo(targetTile))
             {
-                // Đánh dấu đã đi qua
-                _mapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
-                currentPos = new Vector3(targetTile.x, 0.25f, targetTile.z);
+                if (tempMState.IsSpecialTile(targetTile))
+                {
+                    currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
+                    UpdateMovePathsWithSpecialTile(targetTile, distanceMove, currentPos, direction);
+                    break;
+                }
+                
+                MapManager.Instance.MapState.VisitTile(targetTile); // Đánh dấu tất cả tile đã đi qua
+                _visitedTiles.Add(targetTile); // Lưu tổng các tile đã đi qua
+                currentPos = new Vector3(targetTile.x, characterY, targetTile.z);
                 _movePaths.Add(currentPos); // Lưu các tile đi qua trong 1 lần di chuyển
+                _currentPosByCalculate = currentPos;
             }
             else
             {
+                _currentPosByCalculate = currentPos;
                 break; // Dừng lại khi tìm thấy tile đã đi qua
             }
             
         }
     }
+    
+    // Find _movePaths with each type of tile.
+    private void UpdateMovePathsWithSpecialTile(Vector3 tilePos, int distanceMove, Vector3 currentPos, Vector3 direction)
+    {
+        MapState tempMState = MapManager.Instance.MapState;
+        switch (MapManager.Instance.MapState.SpecialTiles[tilePos].Type)
+        {
+            case TileType.Teleport:
+                
+                Vector3 targetTile = currentPos - new Vector3(0, 0.25f, 0);
+                _movePaths.Add(currentPos); // Thêm vị trí của teleport tile vào _movePaths
+                
+                currentPos = new Vector3(tempMState.TeleportPair[targetTile].x, characterY, tempMState.TeleportPair[targetTile].z); // teleport character den teleport tile con lai
+                _movePaths.Add(currentPos); // Thêm teleport tile con lai vao _movePaths
+                
+                if (direction == Vector3.left || direction == Vector3.right)
+                {
+                    FindMovePathsOnX(distanceMove, currentPos, direction);
+                } 
+                else if (direction == Vector3.forward || direction == Vector3.back)
+                {
+                    FindMovePathsOnZ(distanceMove, currentPos, direction);
+                }
+                
+                break;
+            case TileType.Up:
+
+                if (direction == Vector3.down)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
+                direction = Vector3.forward;
+                distanceMove = 2;
+                
+                _movePaths.Add(currentPos);
+                FindMovePathsOnZ(distanceMove, currentPos, direction);
+                
+                break;
+            case TileType.Down:
+
+                if (direction == Vector3.up)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
+                direction = Vector3.back;
+                distanceMove = -2;
+                
+                _movePaths.Add(currentPos);
+                FindMovePathsOnZ(distanceMove, currentPos, direction);
+                
+                break;
+            case TileType.Right:
+
+                if (direction == Vector3.left)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
+                direction = Vector3.right;
+                distanceMove = 2;
+                
+                _movePaths.Add(currentPos);
+                FindMovePathsOnX(distanceMove, currentPos, direction);
+                
+                break;
+            case TileType.Left:
+
+                if (direction == Vector3.right)
+                {
+                    _movePaths.Add(currentPos);
+                    return;
+                }
+                direction = Vector3.left;
+                distanceMove = -2;
+                
+                _movePaths.Add(currentPos);
+                FindMovePathsOnX(distanceMove, currentPos, direction);
+                
+                break;
+            case TileType.Horizontal:
+                
+                if (direction == Vector3.forward || direction == Vector3.back)
+                {
+                    return;
+                }
+                
+                _movePaths.Add(currentPos);
+                FindMovePathsOnX(distanceMove, currentPos, direction);
+                
+                break;
+            case TileType.Vertical:
+                
+                if (direction == Vector3.right || direction == Vector3.left)
+                {
+                    return;
+                }
+                
+                _movePaths.Add(currentPos);
+                FindMovePathsOnZ(distanceMove, currentPos, direction);
+                
+                break;
+            default:
+                break;
+        }
+    }
+    
     #endregion
     
     // Chuyển đồi hướng vuốt chuột thành hướng di chuyển
@@ -192,6 +365,47 @@ public class CharacterController : MonoBehaviour
     
     private void SpawnBodyParts(Vector3 spawnPosition)
     {
-        Instantiate(_bodyPartPrefab, spawnPosition, Quaternion.identity, _bodyPartsContainer.transform);
+        Instantiate(bodyPartPrefab, spawnPosition, Quaternion.identity, _characterBodyContainer.transform);
+    }
+    
+    // Getters and Setters
+    public Vector3 InitialPosition 
+    {
+        get => _initialPosition;
+        set => _initialPosition = value;
+    }
+    public GameObject CharacterBodyContainer
+    {
+        get => _characterBodyContainer;
+        set => _characterBodyContainer = value; // Cần thiết nếu muốn thay đổi container    
+    }
+    public List<Vector3> VisitedTiles
+    {
+        get => _visitedTiles;
+        set => _visitedTiles = value; // Cần thiết nếu muốn thay đổi danh sách đã đi qua
+    }
+
+    public CharacterType CharacterType
+    {
+        get => _characterType;
+        set => _characterType = value;
+    }
+    
+    public List<Vector3> MovePaths
+    {
+        get => _movePaths;
+        set => _movePaths = value;
+    }
+    
+    public Vector3 CurrentPosByCalculate
+    {
+        get => _currentPosByCalculate;
+        set => _currentPosByCalculate = value;
+    }
+
+    public Vector3 InitialPosPerMovePath
+    {
+        get => _initialPosPerMovePath;
+        set => _initialPosPerMovePath = value;
     }
 }
