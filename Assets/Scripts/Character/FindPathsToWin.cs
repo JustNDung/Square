@@ -24,10 +24,6 @@ public class FindPathsToWin
     public void FindAllMovePathToWin()
     {
         if (_isWin) return;
-        
-        int stateHash = GetStateHash();
-        if (_visitedStates.Contains(stateHash)) return;
-        _visitedStates.Add(stateHash);
 
         if (MapManager.Instance.MapState.IsWin())
         {
@@ -43,12 +39,16 @@ public class FindPathsToWin
                 _winPaths[character] = pooledList;
             }
             return;
-        }
+        } // Win thì dừng và lưu lại winpath.
 
         foreach (var character in _characters)
         {
             _startPosPerState[character].Push(character.CurrentPosByCalculate);
-        }
+        } // đẩy start position của character mỗi lần move vào stack để backtrack.
+        
+        int stateHash = GetStateHash();
+        if (_visitedStates.Contains(stateHash)) return; // gặp state trung lap thì return ko xét tiếp
+        _visitedStates.Add(stateHash);
         
         foreach (var direction in _directions)
         {
@@ -61,6 +61,8 @@ public class FindPathsToWin
                     isStateChanged = true;
                 }
             }
+            // tìm duong di cho mỗi character với 1 hướng cụ thể
+            // map state chỉ thay đổi khi mà 1 nhân vật tìm duoc đường đi
 
             if (isStateChanged)
             {
@@ -70,10 +72,11 @@ public class FindPathsToWin
                     var pooledList = ListPool<Vector3>.Get();
                     pooledList.AddRange(character.MovePaths);
                     _currentPaths[character].Add(pooledList);
-                }
+                } // nếu map state thay đổi thì add các move path tương ứng với mỗi character vừa tìm được vào _currentPaths để còn backtrack.
 
-                FindAllMovePathToWin();
-
+                FindAllMovePathToWin(); // đệ quy để tìm đường đi tiếp nếu state có thay đổi.
+                
+                // nếu không tìm được duong di với mọi hướng và mọi character, thoát nhánh đệ quy và backtrack với đoạn code dưới đây:
                 foreach (var character in _characters)
                 {
                     int numberOfMovePaths = _currentPaths[character].Count;
@@ -83,21 +86,20 @@ public class FindPathsToWin
                     for (int i = 0; i < lastPath.Count; i++)
                     {
                         MapManager.Instance.MapState.UnvisitTile(lastPath[i] - _offset);
-                    }
+                    } // Unvisit các tile vưa đi qua
+                    
+                    ListPool<Vector3>.Release(lastPath); // Trả lại list vào pool
 
-                    // Trả lại list vào pool
-                    ListPool<Vector3>.Release(lastPath);
-
-                    _currentPaths[character].RemoveAt(numberOfMovePaths - 1);
-
-                    if (_startPosPerState[character].Count > 0)
-                    {
-                        _startPosPerState[character].Pop();
-                    }
+                    _currentPaths[character].RemoveAt(numberOfMovePaths - 1); // remove last move paths ra khỏi _currentPaths.
 
                     if (_startPosPerState[character].Count > 0)
                     {
-                        character.CurrentPosByCalculate = _startPosPerState[character].Peek();
+                        _startPosPerState[character].Pop(); // remove vị trí bắt đầu của nhân vật.
+                    }
+
+                    if (_startPosPerState[character].Count > 0)
+                    {
+                        character.CurrentPosByCalculate = _startPosPerState[character].Peek(); // gán vị trí hiện tại của nhân vat là vị trí bắt đầu của state truoc do.
                     }
                 }
             }

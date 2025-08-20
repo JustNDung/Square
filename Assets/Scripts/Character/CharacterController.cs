@@ -163,6 +163,8 @@ public class CharacterController : MonoBehaviour
         MapState tempMState = MapManager.Instance.MapState;
         Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
         
+        _currentPosByCalculate = currentPos; // Lưu vị trí cuối cùng trong 1 lần di chuyển khi tính toán hướng đi.
+        
         if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Horizontal)
         {
             return;
@@ -203,6 +205,8 @@ public class CharacterController : MonoBehaviour
     {
         MapState tempMState = MapManager.Instance.MapState;
         Vector3 characterTile = currentPos - new Vector3(0, 0.25f, 0);
+        
+        _currentPosByCalculate = currentPos; // Lưu vị trí cuối cùng trong 1 lần di chuyển khi tính toán hướng đi.
 
         if (tempMState.IsSpecialTile(characterTile) && tempMState.SpecialTiles[characterTile].Type == TileType.Vertical)
         {
@@ -268,6 +272,7 @@ public class CharacterController : MonoBehaviour
                 if (direction == Vector3.down)
                 {
                     _movePaths.Add(currentPos);
+                    _currentPosByCalculate = currentPos;
                     return;
                 }
                 direction = Vector3.forward;
@@ -282,6 +287,7 @@ public class CharacterController : MonoBehaviour
                 if (direction == Vector3.up)
                 {
                     _movePaths.Add(currentPos);
+                    _currentPosByCalculate = currentPos;
                     return;
                 }
                 direction = Vector3.back;
@@ -296,6 +302,7 @@ public class CharacterController : MonoBehaviour
                 if (direction == Vector3.left)
                 {
                     _movePaths.Add(currentPos);
+                    _currentPosByCalculate = currentPos;
                     return;
                 }
                 direction = Vector3.right;
@@ -310,6 +317,7 @@ public class CharacterController : MonoBehaviour
                 if (direction == Vector3.right)
                 {
                     _movePaths.Add(currentPos);
+                    _currentPosByCalculate = currentPos;
                     return;
                 }
                 direction = Vector3.left;
