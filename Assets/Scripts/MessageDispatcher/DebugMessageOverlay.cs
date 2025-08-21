@@ -16,6 +16,7 @@ public class DebugMessageOverlay : MonoBehaviour
     {
         Instance = this;
         logText.text = "";
+        logText.color = Color.blue;
     }
 
     public void AddLog(string eventName, string data)
