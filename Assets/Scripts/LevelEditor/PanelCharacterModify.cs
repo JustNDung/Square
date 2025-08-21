@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 public class PanelCharacterModify : MonoBehaviour
 {
     [SerializeField] private TMP_InputField characterCurrentX;
@@ -11,6 +12,8 @@ public class PanelCharacterModify : MonoBehaviour
     [SerializeField] private TMP_InputField characterInitialX;
     [SerializeField] private TMP_InputField characterInitialY;
     [SerializeField] private TMP_InputField characterInitialZ;
+
+    [SerializeField] private TMP_Dropdown characterTypeDropdown;
     
     [SerializeField] private Button deleteCharacterButton;
 
@@ -28,10 +31,13 @@ public class PanelCharacterModify : MonoBehaviour
         characterInitialX.interactable = false;
         characterInitialZ.interactable = false;
         
+        InitCharacterTypeDropdown();
+        
         deleteCharacterButton.onClick.AddListener(DeleteCharacter);
         
         MessageDispatcher.Subscribe(GameEvent.OnCharacterEditorRightClick, OnCharacterEditorRightClick);
         MessageDispatcher.Subscribe(GameEvent.OnCharacterEditorLeftClick, OnCharacterEditorLeftClick);
+        MessageDispatcher.Subscribe(GameEvent.ClosePopUp, ClosePopUp);
     }
 
     private void Update()
@@ -71,7 +77,36 @@ public class PanelCharacterModify : MonoBehaviour
         }
     }
 
+    private void InitCharacterTypeDropdown()
+    {
+        characterTypeDropdown.ClearOptions();
+
+        var characterTypes = Enum.GetNames(typeof(CharacterType));
+        var options = new List<TMP_Dropdown.OptionData>();
+        
+        foreach (var typeName in characterTypes)
+        {
+            options.Add(new TMP_Dropdown.OptionData(typeName));
+        }
+        
+        characterTypeDropdown.AddOptions(options);
+        characterTypeDropdown.onValueChanged.AddListener(OnCharacterTypeChanged);
+    }
+
+    private void OnCharacterTypeChanged(int index)
+    {
+        if (_characterEditor == null || _characterEditorData == null) return;
+
+        _characterEditorData.type = (CharacterType)index;
+        _characterEditor.Apply(_characterEditorData);
+    }
+
     private void OnCharacterEditorLeftClick(object args)
+    {
+        gameObject.SetActive(false);
+    }
+    
+    private void ClosePopUp(object args)
     {
         gameObject.SetActive(false);
     }

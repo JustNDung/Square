@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class PanelLevelSettings : MonoBehaviour
@@ -12,6 +13,7 @@ public class PanelLevelSettings : MonoBehaviour
     {
         saveLevelBtn.onClick.AddListener(OnSaveLevelEditor);
         levelIdIpt.onEndEdit.AddListener(OnEndEditLevelId);
+        loadLevelBtn.onClick.AddListener(OnLoadLevelEditor);
     }
     
     private void Start()
@@ -50,9 +52,16 @@ public class PanelLevelSettings : MonoBehaviour
 
     private void OnSaveLevelEditor()
     {
+        int levelId = int.Parse(levelIdIpt.text);
+        ApplyLevelEditorData(levelId);
         GameManager.Instance.GameEditor.DeleteData(); // Clear previous data
         MessageDispatcher.Send(GameEvent.SaveLevelEditor); // Notify all subscribers to save their data
         GameManager.Instance.GameEditor.SaveLevelEditor(); // Save the level editor data
+    }
+
+    private void OnLoadLevelEditor()
+    {
+        GameManager.Instance.GameEditor.LoadLevelEditor(levelIdIpt.text);
     }
     
 }

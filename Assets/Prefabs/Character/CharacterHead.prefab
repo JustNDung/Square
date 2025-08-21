@@ -30,8 +30,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.74999994, y: 0.74999994, z: 0.74999994}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8207366547951730379}
   m_Father: {fileID: 0}
@@ -48,12 +48,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2d95aee7615b4b49b6c4db3877eabc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceMove: 2
   moveSpeed: 8
   smoothFactor: 0.8
   characterY: 0.25
   bodyPartPrefab: {fileID: 8965794805089352040, guid: f54610dadd9b7fa449d69cc264778cca, type: 3}
-  bodyContainerName: CharacterBody
   spawnThreshold: 0.4
 --- !u!114 &1569770696702929428
 MonoBehaviour:
@@ -154,6 +152,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: b93725ed70b55574583ff1a77bd09668, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: ef2d2a3b39a22469989c5a63af9227e3, type: 2}
     - target: {fileID: 919132149155446097, guid: b93725ed70b55574583ff1a77bd09668, type: 3}
       propertyPath: m_Name
       value: Character

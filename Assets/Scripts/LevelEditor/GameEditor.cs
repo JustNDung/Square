@@ -13,7 +13,8 @@ public class GameEditor : MonoBehaviour
         _tileEditors = new List<TileEditor>();
         _characterEditors = new List<CharacterEditor>();
     }
-
+    
+    // Parse level editor data to game data and save.
     public void SaveLevelEditor()
     {
         List<TileData> tileDatas = new List<TileData>();
@@ -23,7 +24,10 @@ public class GameEditor : MonoBehaviour
             TileData tileData = new TileData
             {
                 levelId = _levelEditor.GetData().levelId,
-                isWalkable = tileEditorData.isWalkable
+                type =  tileEditorData.type,
+                posX = tileEditorData.posX,
+                posY = tileEditorData.posY,
+                posZ = tileEditorData.posZ
             };
             tileDatas.Add(tileData);
         }
@@ -35,6 +39,7 @@ public class GameEditor : MonoBehaviour
             CharacterData characterData = new CharacterData
             {
                 levelId = _levelEditor.GetData().levelId,
+                type =  characterEditorData.type,
                 posX = characterEditorData.initialPosition.x,
                 posY = characterEditorData.initialPosition.y,
                 posZ = characterEditorData.initialPosition.z,
@@ -68,6 +73,25 @@ public class GameEditor : MonoBehaviour
         _levelEditor = null;
         _tileEditors.Clear();
         _characterEditors.Clear();
+    }
+
+    public void LoadLevelEditor(string levelId)
+    {
+        SaveLoadService.LoadGameLevel(levelId, (gameLevelData) =>
+        {
+            if (gameLevelData != null)
+            {
+                LevelData levelData = gameLevelData.level;
+                
+                LevelEditorData levelEditorData = new LevelEditorData
+                {
+                    levelId = levelData.levelId
+                };
+                LevelManager.Instance.LevelEditor.Apply(levelEditorData);
+
+                MapManager.Instance.GenerateMapFromData(gameLevelData);
+            }
+        });
     }
     
     // Getters and Setters

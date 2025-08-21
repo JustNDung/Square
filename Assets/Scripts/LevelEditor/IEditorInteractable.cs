@@ -3,4 +3,5 @@ public interface IEditorInteractable
 {
     void OnEditorRightClick();
     void OnESCDown();
+    void ClosePopUp();
 }				

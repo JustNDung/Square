@@ -35,7 +35,7 @@ public class PanelMapSettings : MonoBehaviour
             };
             
             MapManager.Instance.MapEditor.Apply(mapEditorData);
-            MapManager.Instance.GenerateMap();
+            MapManager.Instance.GenerateBasicMapForEditor();
         }
         else
         {

@@ -3,15 +3,11 @@ using UnityEngine;
 
 public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 {
-    private Tile _tile;
-    private GameObject _obstacle;
-    [SerializeField] private GameObject obstaclePrefab;
-    [SerializeField] private float obstacleY = 1f;
-    
+    private TileController _tileController;
     
     private void Awake()
     {
-        _tile = GetComponent<Tile>();
+        _tileController = GetComponent<TileController>();
         MessageDispatcher.Subscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
     }
     
@@ -24,11 +20,17 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
     {
         MessageDispatcher.Send(GameEvent.OnTileEditorLeftClick);
     }
+    
+    public void ClosePopUp()
+    {
+        MessageDispatcher.Send(GameEvent.ClosePopUp);
+    }
 
     public void Apply(TileEditorData tileEditorData)
     {
-        _tile.IsWalkable = tileEditorData.isWalkable;
-        SetupObstacle(tileEditorData);
+        TileModel tileModel = new TileModel(new Vector3(tileEditorData.posX, tileEditorData.posY, tileEditorData.posZ), 
+            tileEditorData.type);
+        _tileController.Apply(tileModel);
     }
     
     private void OnSaveLevelEditor(object args)
@@ -36,31 +38,15 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
         GameManager.Instance.GameEditor.TileEditors.Add(this);
     }
 
-    private void SetupObstacle(TileEditorData tileEditorData)
-    {
-        if (!tileEditorData.isWalkable)
-        {
-            GenerateObstacle();
-        }
-        else
-        {
-            Destroy(_obstacle);
-        }
-    }
-
     public TileEditorData GetData()
     {
         return new TileEditorData
         {
-            isWalkable = _tile.IsWalkable
+            type = _tileController.Model.Type,
+            posX = _tileController.transform.position.x,
+            posY = _tileController.transform.position.y,
+            posZ = _tileController.transform.position.z
         };
-    }
-
-    private void GenerateObstacle()
-    {
-        Transform obstacleContainer = MapManager.Instance.transform.Find("ObstacleContainer");
-        _obstacle = Instantiate(obstaclePrefab, new Vector3(transform.position.x, obstacleY, transform.position.z), 
-            Quaternion.identity, obstacleContainer);
     }
 
     private void OnDestroy()
@@ -73,5 +59,8 @@ public class TileEditor : MonoBehaviour, IEditorInteractable, IDataProvider
 [System.Serializable]
 public class TileEditorData
 {
-    public bool isWalkable;
+    public TileType type;
+    public float posX;
+    public float posY;
+    public float posZ;
 }
