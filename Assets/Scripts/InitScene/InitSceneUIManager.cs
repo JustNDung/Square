@@ -6,4 +6,9 @@ public class InitSceneUIManager : MonoBehaviour
     {
         SceneLoader.Instance.LoadScene("GamePlay");
     }
+    
+    public void OnClickWorkshopButton()
+    {
+        SceneLoader.Instance.LoadScene("LevelEditor");
+    }
 }
