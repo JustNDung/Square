@@ -7,17 +7,19 @@ public class LevelEditor : MonoBehaviour, IDataProvider
     {
         MessageDispatcher.Subscribe(GameEvent.SaveLevelEditor, OnSaveLevelEditor);
     }
-    
-    public void Apply (LevelEditorData levelEditorData)
+
+    public void Apply(LevelEditorData levelEditorData)
     {
         LevelManager.Instance.CurrentLevelId = levelEditorData.levelId;
+        LevelManager.Instance.CurrentChapterId = levelEditorData.chapterId;
     }
 
     public LevelEditorData GetData()
     {
         return new LevelEditorData
         {
-            levelId = LevelManager.Instance.CurrentLevelId
+            levelId = LevelManager.Instance.CurrentLevelId,
+            chapterId = LevelManager.Instance.CurrentChapterId
         };
     }
     
@@ -36,4 +38,5 @@ public class LevelEditor : MonoBehaviour, IDataProvider
 public class LevelEditorData
 {
     public int levelId;
+    public int chapterId;
 }

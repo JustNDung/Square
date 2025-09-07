@@ -51,7 +51,8 @@ public class GameEditor : MonoBehaviour
         {
             level = new LevelData
             {
-                levelId = _levelEditor.GetData().levelId
+                levelId = _levelEditor.GetData().levelId,
+                chapterId = _levelEditor.GetData().chapterId
             },
             map = new MapData
             {
@@ -85,7 +86,8 @@ public class GameEditor : MonoBehaviour
                 
                 LevelEditorData levelEditorData = new LevelEditorData
                 {
-                    levelId = levelData.levelId
+                    levelId = levelData.levelId,
+                    chapterId = levelData.chapterId
                 };
                 LevelManager.Instance.LevelEditor.Apply(levelEditorData);
 

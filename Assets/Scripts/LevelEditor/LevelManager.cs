@@ -7,6 +7,7 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private List<LevelData> allLevels; // Có thể load từ JSON, ScriptableObject, v.v.
     private int _currentLevelId;
+    private int _currentChapterId;
     private LevelEditor _levelEditor;
 
     private void Awake()
@@ -20,8 +21,15 @@ public class LevelManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         _levelEditor = GetComponent<LevelEditor>();
     }
-    
+
     // Getters and Setters
+    
+    public int CurrentChapterId
+    {
+        get { return _currentChapterId; }
+        set { _currentChapterId = value; }
+    }
+    
     public int CurrentLevelId
     {
         get { return _currentLevelId; }
