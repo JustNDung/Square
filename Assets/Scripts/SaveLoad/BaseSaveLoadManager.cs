@@ -22,6 +22,11 @@ public abstract class BaseSaveLoadManager<T> : ISaveLoadManager<T>
         CoroutineRunner.Instance.StartCoroutine(GetCoroutine(key, onLoaded));
     }
 
+    public virtual void Load(string key1, string key2, System.Action<T> onLoaded)
+    {
+        CoroutineRunner.Instance.StartCoroutine(GetCoroutine(key1, key2, onLoaded));
+    }
+
     protected virtual IEnumerator PostCoroutine(T data, System.Action<bool> onComplete)
     {
         string json = JsonUtility.ToJson(data);
@@ -48,6 +53,26 @@ public abstract class BaseSaveLoadManager<T> : ISaveLoadManager<T>
     protected virtual IEnumerator GetCoroutine(string key, System.Action<T> onLoaded)
     {
         using (UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/{key}"))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                T result = JsonUtility.FromJson<T>(request.downloadHandler.text);
+                onLoaded?.Invoke(result);
+                Debug.Log("✅ Load success");
+            }
+            else
+            {
+                Debug.LogError("❌ Load failed: " + request.error);
+                onLoaded?.Invoke(default);
+            }
+        }
+    }
+
+    protected virtual IEnumerator GetCoroutine(string key1, string key2, System.Action<T> onLoaded)
+    {
+        using (UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/{key1}/{key2}"))
         {
             yield return request.SendWebRequest();
 

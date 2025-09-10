@@ -23,7 +23,6 @@ public class GameEditor : MonoBehaviour
             TileEditorData tileEditorData = _tileEditors[i].GetData();
             TileData tileData = new TileData
             {
-                levelId = _levelEditor.GetData().levelId,
                 type =  tileEditorData.type,
                 posX = tileEditorData.posX,
                 posY = tileEditorData.posY,
@@ -38,7 +37,6 @@ public class GameEditor : MonoBehaviour
             CharacterEditorData characterEditorData = _characterEditors[i].GetData();
             CharacterData characterData = new CharacterData
             {
-                levelId = _levelEditor.GetData().levelId,
                 type =  characterEditorData.type,
                 posX = characterEditorData.initialPosition.x,
                 posY = characterEditorData.initialPosition.y,
@@ -51,12 +49,11 @@ public class GameEditor : MonoBehaviour
         {
             level = new LevelData
             {
-                levelId = _levelEditor.GetData().levelId,
-                chapterId = _levelEditor.GetData().chapterId
+                levelNum = _levelEditor.GetData().levelNum,
+                chapterNum = _levelEditor.GetData().chapterNum
             },
             map = new MapData
             {
-                levelId = _levelEditor.GetData().levelId,
                 width = _mapEditor.GetData().width,
                 length = _mapEditor.GetData().length
             },
@@ -76,9 +73,9 @@ public class GameEditor : MonoBehaviour
         _characterEditors.Clear();
     }
 
-    public void LoadLevelEditor(string levelId)
+    public void LoadLevelEditor(string chapterNum, string levelNum)
     {
-        SaveLoadService.LoadGameLevel(levelId, (gameLevelData) =>
+        SaveLoadService.LoadGameLevel(chapterNum, levelNum, (gameLevelData) =>
         {
             if (gameLevelData != null)
             {
@@ -86,8 +83,8 @@ public class GameEditor : MonoBehaviour
                 
                 LevelEditorData levelEditorData = new LevelEditorData
                 {
-                    levelId = levelData.levelId,
-                    chapterId = levelData.chapterId
+                    levelNum = levelData.levelNum,
+                    chapterNum = levelData.chapterNum
                 };
                 LevelManager.Instance.LevelEditor.Apply(levelEditorData);
 

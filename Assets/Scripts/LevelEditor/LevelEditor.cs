@@ -10,16 +10,16 @@ public class LevelEditor : MonoBehaviour, IDataProvider
 
     public void Apply(LevelEditorData levelEditorData)
     {
-        LevelManager.Instance.CurrentLevelId = levelEditorData.levelId;
-        LevelManager.Instance.CurrentChapterId = levelEditorData.chapterId;
+        LevelManager.Instance.CurrentLevelId = levelEditorData.levelNum;
+        LevelManager.Instance.CurrentChapterId = levelEditorData.chapterNum;
     }
 
     public LevelEditorData GetData()
     {
         return new LevelEditorData
         {
-            levelId = LevelManager.Instance.CurrentLevelId,
-            chapterId = LevelManager.Instance.CurrentChapterId
+            levelNum = LevelManager.Instance.CurrentLevelId,
+            chapterNum = LevelManager.Instance.CurrentChapterId
         };
     }
     
@@ -37,6 +37,6 @@ public class LevelEditor : MonoBehaviour, IDataProvider
 [System.Serializable]
 public class LevelEditorData
 {
-    public int levelId;
-    public int chapterId;
+    public int levelNum;
+    public int chapterNum;
 }

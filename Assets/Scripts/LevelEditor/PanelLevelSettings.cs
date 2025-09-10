@@ -4,21 +4,21 @@ using UnityEngine;
 using UnityEngine.UI;
 public class PanelLevelSettings : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField levelIdIpt;
-    [SerializeField] private TMP_InputField chapterIdIpt;
+    [SerializeField] private TMP_InputField levelNumIpt;
+    [SerializeField] private TMP_InputField chapterNumIpt;
     [SerializeField] private Button saveLevelBtn;
     [SerializeField] private Button loadLevelBtn;
     [SerializeField] private Button deleteLevelBtn;
     [SerializeField] private int defaultLevelId = 1; // Default level ID
     [SerializeField] private int defaultChapterId = 1; // Default chapter ID
-    private int currentLevelId;
-    private int currentChapterId;
+    private int currentLevelNum;
+    private int currentChapterNum;
     
     private void Awake()
     {
         saveLevelBtn.onClick.AddListener(OnSaveLevelEditor);
-        levelIdIpt.onEndEdit.AddListener(OnEndEditLevelId);
-        chapterIdIpt.onEndEdit.AddListener(OnEndEditChapterId);
+        levelNumIpt.onEndEdit.AddListener(OnEndEditLevelId);
+        chapterNumIpt.onEndEdit.AddListener(OnEndEditChapterId);
         loadLevelBtn.onClick.AddListener(OnLoadLevelEditor);
     }
     
@@ -29,20 +29,20 @@ public class PanelLevelSettings : MonoBehaviour
     
     private void SetDefaultValues()
     {
-        currentChapterId = defaultChapterId;
-        currentLevelId = defaultLevelId;
+        currentChapterNum = defaultChapterId;
+        currentLevelNum = defaultLevelId;
 
-        levelIdIpt.text = defaultLevelId.ToString();
-        chapterIdIpt.text = defaultChapterId.ToString();
-        ApplyLevelEditorData(currentLevelId, currentChapterId);
+        levelNumIpt.text = defaultLevelId.ToString();
+        chapterNumIpt.text = defaultChapterId.ToString();
+        ApplyLevelEditorData(currentLevelNum, currentChapterNum);
     }
     
     private void OnEndEditLevelId(string value)
     {
         if (int.TryParse(value, out int levelId))
         {
-            currentLevelId = levelId;
-            ApplyLevelEditorData(currentLevelId, currentChapterId);
+            currentLevelNum = levelId;
+            ApplyLevelEditorData(currentLevelNum, currentChapterNum);
         }
         else
         {
@@ -54,8 +54,8 @@ public class PanelLevelSettings : MonoBehaviour
     {
         if (int.TryParse(value, out int chapterId))
         {
-            currentChapterId = chapterId;
-            ApplyLevelEditorData(currentLevelId, currentChapterId);
+            currentChapterNum = chapterId;
+            ApplyLevelEditorData(currentLevelNum, currentChapterNum);
         }
         else
         {
@@ -69,8 +69,8 @@ public class PanelLevelSettings : MonoBehaviour
         // Update the level ID in the game manager or relevant system
         LevelEditorData levelEditorData = new LevelEditorData
         {
-            levelId = levelId,
-            chapterId = chapterId
+            levelNum = levelId,
+            chapterNum = chapterId
         };
 
         LevelManager.Instance.LevelEditor.Apply(levelEditorData);
@@ -78,7 +78,7 @@ public class PanelLevelSettings : MonoBehaviour
 
     private void OnSaveLevelEditor()
     {
-        ApplyLevelEditorData(currentLevelId, currentChapterId);
+        ApplyLevelEditorData(currentLevelNum, currentChapterNum);
         GameManager.Instance.GameEditor.DeleteData(); // Clear previous data
         MessageDispatcher.Send(GameEvent.SaveLevelEditor); // Notify all subscribers to save their data
         GameManager.Instance.GameEditor.SaveLevelEditor(); // Save the level editor data
@@ -86,7 +86,7 @@ public class PanelLevelSettings : MonoBehaviour
 
     private void OnLoadLevelEditor()
     {
-        GameManager.Instance.GameEditor.LoadLevelEditor(levelIdIpt.text);
+        GameManager.Instance.GameEditor.LoadLevelEditor(chapterNumIpt.text, levelNumIpt.text);
     }
     
 }

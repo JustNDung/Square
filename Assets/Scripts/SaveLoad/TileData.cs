@@ -2,7 +2,6 @@
 [System.Serializable]
 public class TileData
 {
-    public int levelId; // ID của bản đồ
     public TileType type; // Loại ô (ví dụ: đất, nước, cỏ, v.v.)
     public float posX;
     public float posY;

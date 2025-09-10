@@ -31,9 +31,9 @@ public static class SaveLoadService
         _gameLevelManager.Save(data, onComplete);
     }
 
-    public static void LoadGameLevel(string levelId, Action<GameLevelData> onLoaded)
+    public static void LoadGameLevel(string chapterNum, string levelNum, Action<GameLevelData> onLoaded)
     {
-        _gameLevelManager.Load(levelId, onLoaded);
+        _gameLevelManager.Load(chapterNum, levelNum, onLoaded);
     }
 
     
