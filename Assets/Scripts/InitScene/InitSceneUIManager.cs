@@ -11,4 +11,9 @@ public class InitSceneUIManager : MonoBehaviour
     {
         SceneLoader.Instance.LoadScene("LevelEditor");
     }
+    
+    public void OnClickChaptersButton()
+    {
+        SceneLoader.Instance.LoadScene("LevelList");
+    }   
 }
