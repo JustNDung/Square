@@ -5,13 +5,20 @@ using UnityEngine.UI;
 public class ChapterList : MonoBehaviour
 {
     [SerializeField] private Transform content;
-    [SerializeField] private GameObject levelButtonPrefab; // Prefab nút level
+    [SerializeField] private GameObject levelButtonPrefab;
+    [SerializeField] private int leverTextFontSize = 24;
 
-    private int[,] _chapters = new int[,]
+    private Button _currentSelected;
+    private List<Button> _buttons = new();
+
+    private readonly int[,] _chapters = new int[,]
     {
-        { 1, 9 },   // Chapter 1 có 9 level
-        { 2, 12 },  // Chapter 2 có 12 level
-        { 3, 12 },  // Chapter 3 có 12 level
+        { 1, 9 },
+        { 2, 12 },
+        { 3, 12 },
+        { 4, 18 },
+        { 5, 24 },
+        { 6, 12 }
     };
 
     private void Start()
@@ -21,40 +28,69 @@ public class ChapterList : MonoBehaviour
 
     private void GenerateLevels()
     {
-        int levelIndex = 1; // Đánh số level toàn game
+        int levelIndex = 1;
 
         for (int chapter = 0; chapter < content.childCount; chapter++)
         {
-            Transform panel = content.GetChild(chapter);
-
-            // Lấy số lượng level của chapter hiện tại
+            Transform panel = content.GetChild(chapter).GetChild(0).GetChild(0);
             int levelCount = _chapters[chapter, 1];
 
             for (int i = 0; i < levelCount; i++)
             {
                 int currentLevel = levelIndex;
 
-                // Tạo button trong panel
                 GameObject buttonObj = Instantiate(levelButtonPrefab, panel);
                 buttonObj.name = $"Level_{currentLevel}";
 
-                // Set text cho nút
                 Text btnText = buttonObj.GetComponentInChildren<Text>();
                 if (btnText != null)
+                {
                     btnText.text = currentLevel.ToString();
+                    btnText.fontSize = leverTextFontSize;
+                }
 
-                // Thêm sự kiện click
                 Button btn = buttonObj.GetComponent<Button>();
-                btn.onClick.AddListener(() => OnLevelSelected(currentLevel));
 
+                SetupButtonColors(btn);
+
+                btn.onClick.AddListener(() =>
+                {
+                    SelectButton(btn);
+                    OnLevelSelected(currentLevel);
+                });
+
+                _buttons.Add(btn);
                 levelIndex++;
             }
         }
     }
 
+    private void SetupButtonColors(Button btn)
+    {
+        ColorBlock colors = btn.colors;
+
+        colors.normalColor = Color.white;   
+        colors.highlightedColor = new Color(0.85f, 0.9f, 1f); // hover
+        colors.pressedColor = new Color(0.6f, 0.7f, 1f);      // click
+        colors.selectedColor = Color.yellow;                  // level đã chọn
+        colors.disabledColor = Color.gray;
+
+        colors.fadeDuration = 0.1f;
+
+        btn.colors = colors;    
+    }
+
+    private void SelectButton(Button btn)
+    {
+        if (_currentSelected != null)
+            _currentSelected.OnDeselect(null);
+
+        btn.Select();
+        _currentSelected = btn;
+    }
+
     private void OnLevelSelected(int level)
     {
         Debug.Log($"Selected Level: {level}");
-        // TODO: Load scene hoặc gameplay tương ứng
     }
 }
