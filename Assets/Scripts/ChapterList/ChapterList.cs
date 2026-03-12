@@ -28,8 +28,6 @@ public class ChapterList : MonoBehaviour
 
     private void GenerateLevels()
     {
-        int levelIndex = 1;
-
         for (int chapter = 0; chapter < content.childCount; chapter++)
         {
             Transform panel = content.GetChild(chapter).GetChild(0).GetChild(0);
@@ -37,10 +35,10 @@ public class ChapterList : MonoBehaviour
 
             for (int i = 0; i < levelCount; i++)
             {
-                int currentLevel = levelIndex;
+                int currentLevel = i + 1; // reset mỗi chapter
 
                 GameObject buttonObj = Instantiate(levelButtonPrefab, panel);
-                buttonObj.name = $"Level_{currentLevel}";
+                buttonObj.name = $"Chapter_{chapter + 1}_Level_{currentLevel}";
 
                 Text btnText = buttonObj.GetComponentInChildren<Text>();
                 if (btnText != null)
@@ -53,14 +51,15 @@ public class ChapterList : MonoBehaviour
 
                 SetupButtonColors(btn);
 
+                int chapterIndex = chapter + 1;
+
                 btn.onClick.AddListener(() =>
                 {
                     SelectButton(btn);
-                    OnLevelSelected(currentLevel);
+                    OnLevelSelected(chapterIndex, currentLevel);
                 });
 
                 _buttons.Add(btn);
-                levelIndex++;
             }
         }
     }
@@ -89,8 +88,8 @@ public class ChapterList : MonoBehaviour
         _currentSelected = btn;
     }
 
-    private void OnLevelSelected(int level)
+    private void OnLevelSelected(int chapter, int level)
     {
-        Debug.Log($"Selected Level: {level}");
+        Debug.Log($"Selected Chapter {chapter} - Level {level}");
     }
 }
