@@ -20,6 +20,7 @@ public class PopUpText : MonoBehaviour
 
     public void SetupText(string text)
     {
+        if (_myText == null) return;
         _myText.text = text;
         _myText.color = new Color(_myText.color.r, _myText.color.g, _myText.color.b, 1f);
         _textTimer = lifeTime;

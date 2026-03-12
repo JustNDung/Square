@@ -88,8 +88,20 @@ public class ChapterList : MonoBehaviour
         _currentSelected = btn;
     }
 
-    private void OnLevelSelected(int chapter, int level)
+    private void OnLevelSelected(int chapterNum, int levelNum)
     {
-        Debug.Log($"Selected Chapter {chapter} - Level {level}");
+        string chapter = chapterNum.ToString();
+        string level = levelNum.ToString();
+
+        SaveLoadService.LoadGameLevel(chapter, level, (gameLevelData) =>
+        {
+            if (gameLevelData != null)
+            {
+                SceneLoader.Instance.LoadScene("GamePlay", () =>
+                {
+                    MapManager.Instance.GenerateMapFromData(gameLevelData);
+                });
+            }
+        });
     }
 }
