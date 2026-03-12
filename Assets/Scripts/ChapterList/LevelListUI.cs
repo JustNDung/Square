@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChapterList : MonoBehaviour
+public class LevelListUI : MonoBehaviour
 {
     [SerializeField] private Transform content;
     [SerializeField] private GameObject levelButtonPrefab;

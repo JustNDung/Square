@@ -43,6 +43,11 @@ public class SceneLoader : MonoBehaviour
 
         onLoaded?.Invoke();
     }
+    
+    public void LoadHome()
+    { 
+        LoadScene("InitScene");
+    }
 
     public void ReloadCurrentScene()
     {

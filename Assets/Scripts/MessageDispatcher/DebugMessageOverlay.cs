@@ -15,8 +15,11 @@ public class DebugMessageOverlay : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        logText.text = "";
-        logText.color = Color.blue;
+        if (logText != null)
+        {
+            logText.text = "";
+            logText.color = Color.blue;
+        }
     }
 
     public void AddLog(string eventName, string data)
